@@ -44,7 +44,7 @@
 \engtitle{Airplane tracking system using ADS-B}
 \author{Karol Szpila}
 \supervisor{\vfil Ph.D., D.Sc. Grzegorz Budzyń\\
-\\ Katedra Teorii Pola, Układów Elektronicznych i Optoelektroniki}
+\\ Institute of Telecommunications, Teleinformatics and Acoustics (I-28)}
 %\guardian{dr hab. inż. Imię Nazwisko Prof. PWr, I-6} %nie używać jeśli opiekun jest tą samą osobą co prowadzący pracę
 
 %\date{2008} %standardowo u dołu strony tytułowej umieszczany jest bieżący rok, to polecenie pozwala wstawić dowolny rok
@@ -162,13 +162,20 @@ $SoC$  & System on Chip
 		to I and Q components.
 		\\
 		
-		According to Ptolemy’s identitie for the cosine of sum sine wave carrier can be represented as:
+		According to Ptolemy’s identitie for the cosine of sum:
 		\[
-			Acos\left(2\pi ft + \phi\right) = Acos\left(2\pi ft\right)cos\left(\phi\right) - Asin\left(2\pi\right). ft)sin(\phi)
+			cos\left(x+y\right) = 
+			cos\left(x\right)  cos\left(y\right) - sin\left(x\right) sin\left(y\right)
+		\] 
+		sine wave carrier can be represented as:
+		\[
+			Acos\left(2\pi ft + \phi\right) = 
+			Acos\left(2\pi ft\right)cos\left(\phi\right) - Asin\left(2\pi\right). ft)sin(\phi)
 		\]
 		Using equation \ref{eq:IQ} following formula is obtained:
 		\[
-			Acos\left(2\pi ft + \phi\right) = I cos\left(2\pi f t\right) - Q sin\left(2\pi f t\right),
+			Acos\left(2\pi ft + \phi\right) = 
+			I cos\left(2\pi f t\right) - Q sin\left(2\pi f t\right),
 		\]
 		where:
 		\begin{itemize}
@@ -200,19 +207,249 @@ $SoC$  & System on Chip
 
 	\section{IQ imbalance models}
 	\section{Software Defined Radio}
-		SDR (Software Defined Radio) is a radio communication system where components typically implemented in hardware (e.g. mixers, filters, amplifiers, modulators/demodulators), are instead implemented by the means of software. 
+		SDR (Software Defined Radio) is a radio communication system where components typically implemented in hardware 
+		(e.g. mixers, filters, amplifiers, modulators/demodulators), are instead implemented by the means of software.
+		
+		Rapid development of technology in telecommunication field requires hardware that is able to adapt and follow these changes. 
+		This need was main reason for creation of SDR systems. 
+		
+		
 \chapter{Hardware and tools}
-	\section{Zynq and Xilinx tools}
+	This chapter describes chosen hardware, tools and explains reasons behind such decisions.
 	\section{Adalm Pluto and AD tools}
+		\subsection*{Adalm Pluto Board}
+			Adalm Pluto is learning module from Analog Devices that can be used to introduce 
+			principles of operation and theory behind SDR and RF communication.
+			
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{images/plutoimg.png}
+    			\caption{\textit{Image of Adalm Pluto device.}}
+			\end{figure}
+			\newpage
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=11cm]{images/pluto_schematic.png}
+   		 		\caption{\textit{Schematic Adalm Pluto hardware}}
+			\end{figure}
+			\newpage
+			
+			Adalm Pluto is already integrated with with MATLAB, Simulink, GNU Radio, and libIIO
+			allows to interface with the devices using C, C++, C\# or Python programming languages.
+			
+			PlutoSDR is open software repository with all software and tools related to Adalm Pluto
+			including: HDL Project in Xillinx Vivado, Buildroot configuration for embedded Linux.
+			
+			Main reason for choosing this SDR device was relatively low price in comparative to other
+			available solutions on the market. All other devices were FPGA based. Adalm Pluto core is 			Zynq7010 SoC which is combination of ARM based processor capable of running Linux and
+			FPGA part which can communicate with the processor via AXI interface.
+		\subsection*{AD9363 Agile RF Transceiver}
+			The main part of Adalm Pluto SDR is AD9363.  AD9363 is a high performance, highly
+			integrated RF agile transceiver designed for use in 3G and 4G femtocell applications.
+			
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{images/ad9361_sch.png}
+   		 		\caption{\textit{Block diagram of AD9363 RF transceiver}}
+			\end{figure}
+			
+			Ad9363 features:
+			\begin{itemize}
+				\item Wide bandwidth from 325Mhz to 3.8GHz,
+				\item Tunnable channel bandwidth up to 20MHz,
+				\item Independent AGC (Automatic Gain Control),
+				\item Full duplex communication,
+				\item DC offset and I/Q mismatch tracking.
+				\item Flexible rate, 12-bit ADC and DAC
+			\end{itemize}
+		\subsection{AD IIO Osciloscope}
+	\section{Zynq and Xilinx tools}
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{images/zynq.jpeg}
+   		 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+		\end{figure}
 	\section{Simulation environment}
 	
 \chapter{Algorithms}
+	This chapter describes all algorithms used for signal quality improvement. All of considered algorithms are blind. This means that signal analysys is purely statistical with no prior information about signal. Advantages of this approach is that this algorithms can be used for any type of possible signal.
 	\section{DC offset correction}
-		Moving average filter and Gaussian filter
-	\section{Magnitude correction}
-	\section{Phase correction}
-		Blind phase correction algorithm
+		This section describes algorithms used for removing DC offset from revived samples.
+		\subsection*{Moving Average Filter}
+			Moving Average Filter is simple FIR (Finite Impulse Response) filter. This filter is
+			commonly used for white noise removal and signal smoothing. However when filter order
+			is great enough to account for samples from full period of the signal filters the
+			average represents signal DC offset.
+			
+			The filter equations is presented below:
+			\[
+				y[n] = \frac{1}{N} \sum_{k=0}^{N-1}x[n-k],
+			\]
+			where:
+			\begin{itemize}
+				\item   $N$ is order of the filter.
+				\item	$y[n]$ is filtered sample at n-th step,
+				\item   $x[n]$ is n-th sample from receiver.
+			\end{itemize}
+			Corrected values are calculated as follows:
+			\[
+				I/Q_{corr} = I/Q - I/Q_{mean},
+			\]
+			where:
+			\begin{itemize}
+				\item I/Q is recived I/Q sample,
+				\item $I/Q_{mean}$ is DC offset calculated using Moving Average Filter.
+			\end{itemize}
 
+			Algorithm introduces delay by N samples in the signal. 
+		\subsection*{Normalized Gaussian Filter}
+			Normalized Gaussian Filter is filter whose impulse response has shape of Gaussian
+			function with all values in range from 0 to 1.
+			
+			\[
+				G(x) = \frac{1}{ \sqrt{2\pi \sigma^2}}e^{\frac{-x}{2\sigma^2}}
+			\]
+			where:
+			\begin{itemize}
+				\item $x$ is 
+				\item $\sigma$ is standard deviation. 
+			\end{itemize}
+			
+			The filter equations is presented below:
+			\[
+				y[n] = \sum_{k=0}^{N-1}x[n-k]G(x)
+			\]
+			\begin{itemize}
+				\item N is windows size,
+			\end{itemize}			
+			Corrected values are calculated as follows:
+			\[
+				I/Q_{corr} = I/Q - I/Q_{gauss},
+			\]
+						where:
+			\begin{itemize}
+				\item I/Q is recived I/Q sample,
+				\item $I/Q_{gauss}$ is DC offset calculated using Normalized Gauss Filter.
+			\end{itemize}
+			This filter has better performance in frequency domain than Moving Average Filter.
+	\section{Magnitude and Phase Correction}
+		The I/Q imbalance is common problem in RF front-ends that uses analog quadrature down-
+		mixing. The ideal down-converter performs only simple frequency shift. Real down-
+	    converters introduces image interference which may be assumed as constant. But amplifiers
+	    and filters introduces varying with frequency imbalance.
+	    
+	    In ideal case the receiver output is:
+		\begin{equation}
+			\renewcommand*{\arraystretch}{1.3} 
+			\begin{array}{ll}
+				I(t) = cos(\omega t) \\
+				Q(t) = sin(\omega t) \\
+			\end{array}
+		\end{equation}
+		where:
+		\begin{itemize}
+			\item $\omega$ is tone frequency.
+		\end{itemize}
+	    I and Q components are orthogonal with respect to each other.
+	    
+	    In real case, assuming Single Branch Model receiver output is:
+		\begin{equation}
+			\renewcommand*{\arraystretch}{1.3} 
+			\begin{array}{ll}
+				I(t)' = \alpha cos(\omega t) + \beta_I \\
+				Q(t)' = sin(\omega t + \phi) + \beta_Q \\
+			\end{array}
+		\end{equation}
+		where:
+		\begin{itemize}
+			\item $\alpha$ is magnitude mismatch,
+			\item $\phi$ is phase imbalance,
+			\item $\beta_{I/Q}$ is signal DC offset.
+		\end{itemize}
+		Input of phase correction algorithms is signal with DC offset extracted using algortihms
+		from previews section. Hence the signal model is:
+		\begin{equation}
+			\renewcommand*{\arraystretch}{1.3} 
+			\begin{array}{ll}
+				I(t)'' = \alpha cos(\omega t) \\
+				Q(t)'' = sin(\omega t + \phi) \\
+			\end{array} \label{eq:iqreal}
+		\end{equation}
+		According to Ptolemy’s identitie for the sine of sum:
+		\[
+			sin\left(\omega t + phi\right) = 
+			sin\left(\omega t\right))cos\left(\phi \right) + 
+			cos\left(\omega t\right) sin\left(\phi \right)
+		\] 
+		Equation \ref{iq:real} be rewritten in matrix form as:
+		\begin{equation}
+			\begin{bmatrix}
+				I(t)'' \\
+				Q(t)''
+			\end{bmatrix}
+			=
+			\begin{bmatrix}
+				\alpha & 0 \\
+				sin(\phi) & cos(\phi)
+			\end{bmatrix}
+			\begin{bmatrix}
+				I(t) \\
+				Q(t)
+			\end{bmatrix} \label{eq:iqrealmat}
+		\end{equation}
+		After multiplying both sides of \ref{eq:iqrelamat} by inversion of parameters matrix following set of exuations
+		is obtained:
+		\begin{equation}
+			\begin{bmatrix}
+				I(t) \\
+				Q(t)
+			\end{bmatrix}
+			=
+			\begin{bmatrix}
+				\alpha^{-1} & 0 \\
+				\alpha^{-1}tan(\phi) & sec(\phi)
+			\end{bmatrix}
+			\begin{bmatrix}
+				I''(t) \\
+				Q''(t)
+			\end{bmatrix}
+		\end{equation}
+		This shows that only $\alpha$ and $\phi$ must be found to perform I/Q mismatch
+		compensation. According to this paper:
+		\[
+			<I''(t)I''(t)> = \frac{1}{2}\alpha^2
+		\]
+		\[
+			\alpha = \sqrt{2<I''(t)I''(t)>}
+		\]
+		\[
+			<I''(t)Q''(t)> = \frac{1}{2}\alpha^2sin(\phi)
+		\]
+		\[
+			sin(\phi)= \frac{2}{\alpha}<I''(t)Q''(t)>
+		\]
+		Assuming that $|\phi| \leq \frac{pi}{4}$ $cos(\phi)$ can be obtained directly from
+		$\sin(\phi)$ using following formula:
+		\[
+		 	cos(\phi) = \sqrt{1-sin(\phi)}
+		\]
+		Using following parameters in we can substitute matrix equations \ref{eq:iqrealmat} with:
+		\begin{equation}
+			\begin{bmatrix} 
+				I(t) \\
+				Q(t)
+			\end{bmatrix}
+			=
+			\begin{bmatrix}
+				\frac{1}{\alpha} & 0 \\
+				\frac{-sin(\phi)}{acos(\phi)} & \frac{1}{cos(\phi)}
+			\end{bmatrix}
+			\begin{bmatrix}
+				I''(t) \\
+				Q''(t)
+			\end{bmatrix}\label{eq:iqcorr}
+		\end{equation}
+		The I/Q mismatch correction  can be now applied using \ref{eq:iqcorr} formula.
 \chapter{Simulations}
 Chapter with all algorithms simulation in Matlab.
 	\section{Single tone signal}
