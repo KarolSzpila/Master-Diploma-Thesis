@@ -91,7 +91,10 @@ $FPGA$ & Field Programmable Gate Array \\
 $SDR$  & Software Defined Radio \\
 $QAM$  & Quadrature Amplitude Modulation \\
 $RF$   & Radio Frequency \\
-$SoC$  & System on Chip                           
+$SoC$  & System on Chip   \\
+$SPI$  &
+
+$UART$                        
 \end{tabular}
 \end{table}
 
@@ -232,14 +235,11 @@ $SoC$  & System on Chip
    				\includegraphics[width=11cm]{images/pluto_schematic.png}
    		 		\caption{\textit{Schematic Adalm Pluto hardware}}
 			\end{figure}
-			\newpage
 			
 			Adalm Pluto is already integrated with with MATLAB, Simulink, GNU Radio, and libIIO
 			allows to interface with the devices using C, C++, C\# or Python programming languages.
-			
 			PlutoSDR is open software repository with all software and tools related to Adalm Pluto
 			including: HDL Project in Xillinx Vivado, Buildroot configuration for embedded Linux.
-			
 			Main reason for choosing this SDR device was relatively low price in comparative to other
 			available solutions on the market. All other devices were FPGA based. Adalm Pluto core is 			Zynq7010 SoC which is combination of ARM based processor capable of running Linux and
 			FPGA part which can communicate with the processor via AXI interface.
@@ -262,17 +262,98 @@ $SoC$  & System on Chip
 				\item DC offset and I/Q mismatch tracking.
 				\item Flexible rate, 12-bit ADC and DAC
 			\end{itemize}
-		\subsection{AD IIO Osciloscope}
+		\subsection{IIO Osciloscope}
+			The ADI IIO Oscilloscope is application which allows interfacing with different
+			evaluation or custom made board based on AD agile RF Transrecivers. This program allows
+			communication with the device connected with PC
+			using:
+			\begin{itemize}
+				\item Local or remote network,
+				\item USB 2.0 interface,
+				\item Serial Port.
+			\end{itemize}			 
+			
+			Application supports full configuration of the device including: configuration receiver
+			frequency and channel bandwidth. Access to DC offset tracking, I/Q correction,
+			internal calibration functionality and all registers. Moreover allows to process revived
+			using filters designed in matlab and four gain control modes:
+			\begin{itemize}
+				\item manual configuration - gain is selected by user.
+				\item slow attack - gain is selected to attenuate  backgrund noise as much as
+				possible,
+				\item fast attack
+				\item hybrid attack.
+				
+			\end{itemize}
+			\vspace{5mm}
+							
+			\noindent
+			Program allows to plot received data from selected channels in four different modes:
+			\begin{itemize}
+				\item time domain as I and Q signals,
+				\item frequency domain with configurable FFT and averaging size,
+				\item constellation as relation between I and Q signals,
+				\item cross-correlation for multi-channel boards.
+			\end{itemize}
+
 	\section{Zynq and Xilinx tools}
+		\subsection*{Introduction to SoC}
+		SoC is aberration from System on Chip. Such devices aggregates
+		many types of hardware in single chips including: ADCs, DACs, internal memory, external 
+		memory controllers, peripheral interfaces such as SPI, UART, I2C
+		interfaces controllers and many others. The main idea is that single silicon chip may be
+		used to implement functionality of entire system. This is cheaper and faster solution than
+		realizing such functionality on PCB using separate components. In the past such role
+		belonged to ASIC.
+		(Application Specific Integrated Circuits). The major disadvantages of such solution is lack
+		of flexibility and significant development cost and time. This makes ASIC's sustainable only
+		on the high volume market where no future upgrade will be required. These limitations created
+		clear need for more flexible device with faster development time. This need has been long
+		satisfied by a FPGAs. FPGA can be reconfigured as desired which means virtually no risk in
+		deploying solution which may require upgrade based on FPGA. Next step are SoC based solution.
+		SoC is combination of processor and FPGA. This allows to create fast application dependent
+		hardware functionality. Moreover processor can run normal operating system which allows fast
+		development and flexibility of the solution.
+		
+		\subsection*{Zynq-7000 family SoC}
+		The Zynq is new kind of SoC from Xillinx. It combines both applications processor and FPGA 	
+		fabric. The Zynq device comprises two sections: PS (Processing System) and PL (Programmable
+		Logic). This sections can be used separately for independent task or together to utilize
+		advantages of both software and hardware. The Zynq devices are meant to use structure of
+		both sections and interface between them. Connection between these parts is provided by AXI
+		(Advanced eXtensible Interface) which is registered under ARM trademark.
+		\\
+		
+		Processing System in all Zynq devices has the same architecture, and the base of it is
+		a dual-core ARM Cortex-A9 processor. This is a hard processor which means it is manufactured 	        directly in silicon structure. Zynq allows to use soft processors like PicoBlaze and 
+		MicroBlaze which can be implemented in PL sections. Depending on the size and speedgrade of
+		the device ARM processor is accompanied by set of processing resources e.g (MMU, DMA, SRAM,
+		Processing System External Interfaces, cache memory, control registers , etc.) which forms
+		together APU (Application Processing Unit).
+		
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{images/zynq.jpeg}
    		 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
 		\end{figure}
+		\newpage
+
+		Programmable Logic is a FPGA based on Atrix-7 and Kintex-7 fabric from Xillinx. PL consist of
+		CLBs ( Configurable Logic Blocks ), slices, IOBs( Input Output Blocks), LUTs (Lookup tables),
+		fliplops and switch matrices. Additionally there are BRAM (Block Random Access Memory) which
+		are used to store large amout of date in small part of the device which allows fast access to
+		its content. Second additional resource is DSP48E1 slice. This is advanced DSP module that
+		allows many complex mathematical operation in a single clock cycle.
+		
+		
+
 	\section{Simulation environment}
 	
 \chapter{Algorithms}
-	This chapter describes all algorithms used for signal quality improvement. All of considered algorithms are blind. This means that signal analysys is purely statistical with no prior information about signal. Advantages of this approach is that this algorithms can be used for any type of possible signal.
+	This chapter describes all algorithms used for signal quality improvement. All of considered 
+	algorithms are blind. This means that signal analysis is purely statistical with no prior 
+	information about signal. Advantages of this approach is that this algorithms can be used 
+	for any type of possible signal.
 	\section{DC offset correction}
 		This section describes algorithms used for removing DC offset from revived samples.
 		\subsection*{Moving Average Filter}
