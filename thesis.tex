@@ -25,8 +25,29 @@
 \usepackage{multirow}
 \usepackage{indentfirst}
 \usepackage{enumitem}
-
+\usepackage{listings}
+\usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+\usepackage[colorinlistoftodos]{todonotes}
 \usepackage{breqn}
+
+\lstset{language=Matlab,%
+	%basicstyle=\color{red},
+	breaklines=true,%
+	morekeywords={matlab2tikz},
+	keywordstyle=\color{blue},%
+	morekeywords=[2]{1}, keywordstyle=[2]{\color{black}},
+	identifierstyle=\color{black},%
+	stringstyle=\color{mylilas},
+	commentstyle=\color{mygreen},%
+	showstringspaces=false,%without this there will be a symbol in the places where there is a space
+	numbers=left,%
+	numberstyle={\tiny \color{black}},% size of the numbers
+	numbersep=9pt, % this defines how far the numbers are from the text
+	emph=[1]{for,end,break},emphstyle=[1]\color{red}, %some words to emphasise
+	%emph=[2]{word1,word2}, emphstyle=[2]{style},    
+}
 
 \newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
 \usepackage[justification=centering]{caption}
@@ -115,10 +136,11 @@ $UART$
 	
 \chapter{Theoretical background}
 	In this chapter the theoretical operation of quadrature modulators and demodulators is explained. Widely
-		used in RF communication IQ signal model is explained together with it imbalance model. For last the
+		used in RF communication IQ signal model is explained together with it imbalance model. At last the
 	Software Defined Radio concept is presented.
-	\section{Theoretical operation quadrature modulator/demodulator}
-		
+	\section{Theoretical operation of mixer}
+		The mixer is one ofthe basics component used in RF communication. It is nonlinear circuit used for
+		frequency shifting.
 	\section{IQ signal model}
 			The term IQ is an abbreviation for in-phase and quadrature. Signal are considered in-phase when phase
 		of both is equal and quadrature when it differs by 90$\deg$. IQ data model shows changes in phase and
@@ -262,7 +284,7 @@ $UART$
 				\item DC offset and I/Q mismatch tracking.
 				\item Flexible rate, 12-bit ADC and DAC
 			\end{itemize}
-		\subsection{IIO Osciloscope}
+		\subsection*{IIO Osciloscope}
 			The ADI IIO Oscilloscope is application which allows interfacing with different
 			evaluation or custom made board based on AD agile RF Transrecivers. This program allows
 			communication with the device connected with PC
@@ -345,9 +367,22 @@ $UART$
 		its content. Second additional resource is DSP48E1 slice. This is advanced DSP module that
 		allows many complex mathematical operation in a single clock cycle.
 		
-		
-
-	\section{Simulation environment}
+		\subsection*{Xillinx Vivado Tools}
+			As a part of Zynq-7000 family SoC design flow. Xillinx Vivado 2018.2 and Xilinx Vivado HLS
+			2018.2 where choosen. This version of the software is tested and compatible with latest
+			release of the plutosdr-fw repository.
+			\\
+			
+			Xillinx Vivado is a tool for FPGA design. This program allows full configuration of
+			PL part of the Zynq-7000 family SoC including: synthesis, implementation, routing,
+			timing validation and generation of the bitstream. Bitstream is used to deploy configuration
+			onto FPGA device.
+			
+			Xilinx Vivado HLS is a program for High Level Synthesis for Zynq-7000 family SoC. This 
+			tool allows to write and test software in C language. After proper validation in the software
+			domain, code can be synthesized to HDL and exported to Xillinx Vivado as an IP Core.
+			This allows much faster design than direct HDL development and much easier testing.
+			These were main reason for choosing HLS environment.
 	
 \chapter{Algorithms}
 	This chapter describes all algorithms used for signal quality improvement. All of considered 
@@ -363,9 +398,9 @@ $UART$
 			average represents signal DC offset.
 			
 			The filter equations is presented below:
-			\[
-				y[n] = \frac{1}{N} \sum_{k=0}^{N-1}x[n-k],
-			\]
+			\begin{equation}
+				y[n] = \frac{1}{N} \sum_{k=0}^{N-1}x[n-k], \label{eq:mva_fir}
+			\end{equation}
 			where:
 			\begin{itemize}
 				\item   $N$ is order of the filter.
@@ -397,9 +432,9 @@ $UART$
 			\end{itemize}
 			
 			The filter equations is presented below:
-			\[
-				y[n] = \sum_{k=0}^{N-1}x[n-k]G(x)
-			\]
+			\begin{equation}
+				y[n] = \sum_{k=0}^{N-1}x[n-k]G(x) \label{eq:gauss}
+			\end{equation}
 			\begin{itemize}
 				\item N is windows size,
 			\end{itemize}			
@@ -458,7 +493,7 @@ $UART$
 		\end{equation}
 		According to Ptolemy’s identitie for the sine of sum:
 		\[
-			sin\left(\omega t + phi\right) = 
+			sin\left(\omega t + \phi\right) = 
 			sin\left(\omega t\right))cos\left(\phi \right) + 
 			cos\left(\omega t\right) sin\left(\phi \right)
 		\] 
@@ -532,17 +567,51 @@ $UART$
 		\end{equation}
 		The I/Q mismatch correction  can be now applied using \ref{eq:iqcorr} formula.
 \chapter{Simulations}
-Chapter with all algorithms simulation in Matlab.
-	\section{Single tone signal}
-	\section{Multitone signal}
-	\section{QAM modulation}
+	This chapter contains description of test environment, matlab algorithms implementation and its\
+	performance evaluation
+	\vspace{1cm}
+	\subsection*{Moving Average Filter}
+		This algorithm was directly implemented using \ref{eq:mva_fir}, with order of the filter as one
+		of the input parameters.
+		\begin{itemize}[label={}]
+			\item \lstinputlisting[basicstyle=\scriptsize]{matlab/algorithms/moving_average_filter/moving_average_fir.m}
+		\end{itemize}
+	\vspace{1cm}
+	\subsection*{Normalized Gaussian Filter}
+		Presented filter is direct implementation of \ref{eq:gauss} equation, with window siz and
+		standard deviations as input parameters.
+		\begin{itemize}[label={}]
+			\item \lstinputlisting[basicstyle=\scriptsize]{matlab/algorithms/gauss_smooth/gauss_smooth.m}
+		\end{itemize}
+		
+	\newpage
+	\subsection*{Magnitude and Phase Correction}
+		Presented filter is direct implementation of \ref{eq:gauss} equation, with window siz and
+		standard deviations as input parameters.
+		\begin{itemize}[label={}]
+			\item \lstinputlisting[basicstyle=\scriptsize]{matlab/algorithms/iq_corr/iq_corr.m}
+		\end{itemize}
+		
+	Figure \ref{fig:flow} presents flow of the test application in Matlab environment. IQ samples are first
+	processed by DC offset removal algorithm depending one the value of $dc_corr_type$ variable, by either
+	Moving Average Filter or Normalized Gaussian Filter. Signal after this correction are available in the
+	workspace under $Ip$ and $Qp$ names. Next signal are processed by Magnitude and Phase Correction algorithm.
+	$Ipp$ and $Qpp$ names of variables holding signal samples after full I/Q mismatch compensation.
+	\begin{center}\centering
+		\begin{figure}[!htb]
+   		\centering
+   		\includegraphics[height=9cm, angle =90]{images/simulink.png}
+    	\caption{\textit{Block diagram of simulation workflow.}} \label{fig:flow}
+		\end{figure}
+	\end{center}		
 	
-\chapter{Measurements}
+\chapter{Hardware Implementation}
 Chapter with all algorithms implemented in Zynq PL.
 	\section{Single tone signal}
 	\section{Multitone signal}
 	\section{QAM modulation}
-
+	
+\chapter{Performance evaluation}
 
 \chapter{ Conclusions}
 
