@@ -125,6 +125,7 @@ $UART$
 \let\cleardoublepage\clearpage %usuwa puste strony pomiaedzy rozdziałami
 
 \chapter{Introduction}
+	
 	\section{Purpose and aim}
 			The purpose of this paper is to study various parameters defining RF signal quality and models of IQ
 		imbalance. Research concept of Software Defined Radio, principles of operation of such devices and capability
@@ -139,8 +140,32 @@ $UART$
 		used in RF communication IQ signal model is explained together with it imbalance model. At last the
 	Software Defined Radio concept is presented.
 	\section{Theoretical operation of mixer}
-		The mixer is one ofthe basics component used in RF communication. It is nonlinear circuit used for
-		frequency shifting.
+		The mixer is one of the basics component used in RF communication. It is nonlinear circuit used for
+		signal multiplication. Such process is used virtually in every radio device.
+		
+		Application for mixers are mostly:
+		\begin{itemize}
+			\item Frequency shifting - The most common application for RF mixer is changing signal frequency.
+			This technology is mostly used in RF transmitter and receivers.
+			Such devices are called up-converters (for mixing signal with carrier) and down-converter for
+			(extracting signal from carrier).
+			\item Phase comparison - It is possible to detect phase difference between two signal using mixer.
+			This RF mixer application is used in PLLs (Phase Locked Loops).
+		\end{itemize}
+		
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{diag/downmx.png}
+    		\caption{\textit{Schematic down-converter}}
+		\end{figure}
+		
+		\newpage
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{diag/upmx.png}
+    		\caption{\textit{Schematic of up-converter}}
+  
+		\end{figure}		
 	\section{IQ signal model}
 			The term IQ is an abbreviation for in-phase and quadrature. Signal are considered in-phase when phase
 		of both is equal and quadrature when it differs by 90$\deg$. IQ data model shows changes in phase and
@@ -231,13 +256,44 @@ $UART$
 		
 
 	\section{IQ imbalance models}
+	In this chapter, two IQ imbalance models are described. First is called SBIQM (Single-Branch IQ Imbalance Model).
+	In this model imbalance exist only in one branch. Second is called DBIQM (Dingle-Branch IQ Imbalance Model).
+	Algorithms presented in this thesis are based on DBIQM model. Mentioned model assumes imbalance in both I
+	and Q branch.
 	\section{Software Defined Radio}
 		SDR (Software Defined Radio) is a radio communication system where components typically implemented in hardware 
 		(e.g. mixers, filters, amplifiers, modulators/demodulators), are instead implemented by the means of software.
 		
-		Rapid development of technology in telecommunication field requires hardware that is able to adapt and follow these changes. 
-		This need was main reason for creation of SDR systems. 
+		Below the block diagram of SDR device is presented:
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{diag/sdr.png}
+    		\caption{\textit{Block diagram of SDR device.}}
+		\end{figure}
 		
+		\begin{itemize}
+			\item \textbf{Flexible RF fronted} is a first stage of SDR processing system. This part is configured by the means
+			software to match current requirements for best system performance. This is possible by using components numerically
+			controlled components.
+			NCO (Numerically Controled Oscilators) which are used as flexible frequency generators. This component are
+			essential for I/Q modulators/demodulators as flexible carrier generators for mixers. Bandpass filters and equalizers\
+			used for signal conditioning.
+			
+			\item \textbf{ADC / DAC converters}. This is where captured signal is converted from analog to digital domain and
+			likewise transmited is converted form digital to analog domain. This is a last stage before before purely digital 
+			domain of the system.
+			
+			\item \textbf{Channelization and Sample rate conversion}. Here the data processed by the baseband system are assigned
+			to respective communication channels, and conditioned for specific channel transmission parameters like frequency and
+			sampling rate.
+			
+			\item \textbf{Baseband Processing System} Digital core of the SDR system. This may by either processor, FPGA, ASIC or
+			SoC. Variety of choice in this case allows creation of well-suited system for desired performance and cost range. 
+			Mentioned component is responsible with interfacing with external system for data exchange purpose. All logic related to
+			transmission is implemented here in the software including correction algorithms and application layer. Thanks to that
+			system can adapt to changes. This means improving signal processing software to improve quality of the processed signal
+			or even complete change of the application layer, by simply providing new software.
+		\end{itemize}
 		
 \chapter{Hardware and tools}
 	This chapter describes chosen hardware, tools and explains reasons behind such decisions.
@@ -263,7 +319,8 @@ $UART$
 			PlutoSDR is open software repository with all software and tools related to Adalm Pluto
 			including: HDL Project in Xillinx Vivado, Buildroot configuration for embedded Linux.
 			Main reason for choosing this SDR device was relatively low price in comparative to other
-			available solutions on the market. All other devices were FPGA based. Adalm Pluto core is 			Zynq7010 SoC which is combination of ARM based processor capable of running Linux and
+			available solutions on the market. All other devices were FPGA based. Adalm Pluto core is 			
+			Zynq7010 SoC which is combination of ARM based processor capable of running Linux and
 			FPGA part which can communicate with the processor via AXI interface.
 		\subsection*{AD9363 Agile RF Transceiver}
 			The main part of Adalm Pluto SDR is AD9363.  AD9363 is a high performance, highly
