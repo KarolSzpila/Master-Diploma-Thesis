@@ -136,36 +136,66 @@ $UART$
 	\section{Thesis outline}
 	
 \chapter{Theoretical background}
-	In this chapter the theoretical operation of quadrature modulators and demodulators is explained. Widely
-		used in RF communication IQ signal model is explained together with it imbalance model. At last the
-	Software Defined Radio concept is presented.
-	\section{Theoretical operation of mixer}
+	In this chapter the theoretical operation of basic RF fronted components is explained. This elements
+	are mixers, quadrature modulators and demodulators. Next, widely used in RF communication, IQ signal model
+	is described, together with two imbalance models. After that Software Defined Radio concept is presented.
+
+	\section{Theoretical operation of RF mixer}
 		The mixer is one of the basics component used in RF communication. It is nonlinear circuit used for
-		signal multiplication. Such process is used virtually in every radio device.
+		signal multiplication. Such process is used virtually in every radio system, cellular base stations,
+		radars and many more devices. 
+		\\
+		
+		RF mixer is three port devices, which takes as an input two signal and produces signal consisting of 
+		the two frequencies on the output. Due to the non linearity of the mixer the new signal on the different
+		frequency is generated.
+		
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=0.8\textwidth]{diag/mixer.png}
+    		\caption{\textit{Schematic of RF mixer.}}
+		\end{figure}
+		
+		Where:
+		\begin{itemize}
+			\item $F_{i1}$ and $F_{i2}$ are input signal that are mixed together.
+			\item $F_i1 + F_i2$ is USB (Upper Side Band) output signal,
+			\item $F_i1 - F_i2$ is LSB (Lower Side Band) output signal.
+		\end{itemize}
+		
+		In every mixing operation USB and LSB signal are generated. Depending on the relation between $RF$ and $LO$
+		signal one of the band is desired output and other is undesired image.
+		\\
+		
+		When $RF$ < $LS$, mixer works as up-converter USB is desired and LSB is undesired.
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=0.8\textwidth]{diag/upconv.png}
+    		\caption{\textit{Schematic of RF mixer.}}
+		\end{figure}
+		
+		When $RF$ < $LS$, mixer works as down-converter LSB is desired and USB is undesired..
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=0.8\textwidth]{diag/downconv.png}
+    		\caption{\textit{Schematic of RF mixer.}}
+		\end{figure}
+		
+		To remove necessary to include in the RF mixer design BPFs (Band Pass Filters). This filter
+		attenuates all frequencies outside specified band.
+		\\
 		
 		Application for mixers are mostly:
 		\begin{itemize}
-			\item Frequency shifting - The most common application for RF mixer is changing signal frequency.
+			\item Frequency shifting - The most common application for RF mixer is changing signal frequency
+			with preservation of others parameters such as amplitude and phase.
 			This technology is mostly used in RF transmitter and receivers.
 			Such devices are called up-converters (for mixing signal with carrier) and down-converter for
 			(extracting signal from carrier).
 			\item Phase comparison - It is possible to detect phase difference between two signal using mixer.
 			This RF mixer application is used in PLLs (Phase Locked Loops).
 		\end{itemize}
-		
-		\begin{figure}[!htb]
-    		\centering
-   			\includegraphics[width=\textwidth]{diag/downmx.png}
-    		\caption{\textit{Schematic down-converter}}
-		\end{figure}
-		
-		\newpage
-		\begin{figure}[!htb]
-    		\centering
-   			\includegraphics[width=\textwidth]{diag/upmx.png}
-    		\caption{\textit{Schematic of up-converter}}
-  
-		\end{figure}		
+	
 	\section{IQ signal model}
 			The term IQ is an abbreviation for in-phase and quadrature. Signal are considered in-phase when phase
 		of both is equal and quadrature when it differs by 90$\deg$. IQ data model shows changes in phase and
