@@ -170,15 +170,27 @@ $UART$
 		When $RF$ < $LS$, mixer works as up-converter USB is desired and LSB is undesired.
 		\begin{figure}[!htb]
     		\centering
-   			\includegraphics[width=0.8\textwidth]{diag/upconv.png}
+   			\includegraphics[width=\textwidth]{diag/upconv.png}
     		\caption{\textit{Schematic of RF mixer.}}
+		\end{figure}
+		
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=0.6\textwidth]{diag/upmx.png}
+    		\caption{\textit{Schematic of RF mixer working as up-converter.}}
 		\end{figure}
 		
 		When $RF$ < $LS$, mixer works as down-converter LSB is desired and USB is undesired..
 		\begin{figure}[!htb]
     		\centering
-   			\includegraphics[width=0.8\textwidth]{diag/downconv.png}
+   			\includegraphics[width=\textwidth]{diag/downconv.png}
     		\caption{\textit{Schematic of RF mixer.}}
+		\end{figure}
+		
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=0.6\textwidth]{diag/downmx.png}
+    		\caption{\textit{Schematic of RF mixer working as down-converter.}}
 		\end{figure}
 		
 		To remove necessary to include in the RF mixer design BPFs (Band Pass Filters). This filter
@@ -404,7 +416,30 @@ $UART$
 				\item constellation as relation between I and Q signals,
 				\item cross-correlation for multi-channel boards.
 			\end{itemize}
+			
+	\section{libIIO}
+		libIIO is library developed by Analog devices for interfacing Linux IIO (Industrial
+		Input Output) devices.
+		
+		Library is composed of three main parts:
+		\begin{itemize}
+			\item local backend - responsible for  interfacing with the Linux kernel using
+				sysfs virtual filesystem,
+			\item network backend - which comunicatios tiwh the IIOD (IIO Deamon) by network link.	
+		\end{itemize}
+		
+		The IIOD is libiio based application that creates libiio contex that is using local backend
+		and then connects it to network backend. Described process allows to hare local context
+		with the server and allows interfacing with the evice using network.
 
+		
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{images/libiio_diagram.png}
+   		 	\caption{\textit{Block diagram of AD9363 RF transceiver}}
+		\end{figure}
+		
+		\newpage
 	\section{Zynq and Xilinx tools}
 		\subsection*{Introduction to SoC}
 		SoC is aberration from System on Chip. Such devices aggregates
@@ -434,7 +469,8 @@ $UART$
 		\\
 		
 		Processing System in all Zynq devices has the same architecture, and the base of it is
-		a dual-core ARM Cortex-A9 processor. This is a hard processor which means it is manufactured 	        directly in silicon structure. Zynq allows to use soft processors like PicoBlaze and 
+		a dual-core ARM Cortex-A9 processor. This is a hard processor which means it is manufactured
+		directly in silicon structure. Zynq allows to use soft processors like PicoBlaze and 
 		MicroBlaze which can be implemented in PL sections. Depending on the size and speedgrade of
 		the device ARM processor is accompanied by set of processing resources e.g (MMU, DMA, SRAM,
 		Processing System External Interfaces, cache memory, control registers , etc.) which forms
@@ -483,6 +519,8 @@ $UART$
 			commonly used for white noise removal and signal smoothing. However when filter order
 			is great enough to account for samples from full period of the signal filters the
 			average represents signal DC offset.
+			\\
+			
 			
 			The filter equations is presented below:
 			\begin{equation}
@@ -503,8 +541,11 @@ $UART$
 				\item I/Q is recived I/Q sample,
 				\item $I/Q_{mean}$ is DC offset calculated using Moving Average Filter.
 			\end{itemize}
-
-			Algorithm introduces delay by N samples in the signal. 
+			\vspace{1cm}
+			
+			Algorithm introduces delay by N samples in the signal. It is important to that the number of
+			samples taken into consideration must extend at least one period of the signal. Otherwise
+			filter will works white noise attenuator.
 		\subsection*{Normalized Gaussian Filter}
 			Normalized Gaussian Filter is filter whose impulse response has shape of Gaussian
 			function with all values in range from 0 to 1.
@@ -693,10 +734,39 @@ $UART$
 	\end{center}		
 	
 \chapter{Hardware Implementation}
-Chapter with all algorithms implemented in Zynq PL.
-	\section{Single tone signal}
-	\section{Multitone signal}
-	\section{QAM modulation}
+	This chapter explains structure of hardware implemented in Zynq PL section. This includes data flow
+	from PS to AD9361 RF transceiver, including correction algorithms for RF signal quality improvement.
+	
+	\section{Data Flow Path}
+	Diagram below shows data path for I/Q samples from Zynq PS system to PL logic.
+	\begin{figure}[!htb]
+    	\centering
+   		\includegraphics[width=\textheight, angle =90]{diag/hdl.png}
+    	\caption{\textit{Representation of sine wave in complex plain}}
+    	\label{fig:polarplot}
+	\end{figure}
+	
+	\begin{itemize}
+		\item \textit{AXI_AD9361} - IP core provided by Analog devices. This block is responsible for
+			interfacing with AD9363 RF transceiver placed on board. 
+		\item \textit{FIRDecimator} - down-sampling block with additional filters to block unwanted
+			images created by change of sampling frequency in receive path.
+		\item \textit{FIR Interolator} - up-sampling block with additional filters to block unwanted
+			images created by change of sampling frequency in transmit path.
+		\item \textit{DC Offset Removal} - implementation of dc offset removal algorithm. 
+			Depending on test bench Moving Average or Gaussian Filter.
+		\item \textit{I/Q Correction} - realization of phase and magnitude correction in the revived
+		 	signal.
+		\item \textit{Zynq Processing System} - CPU part of Zynq SoC. Mentioned block is responsible for
+			communication between PL and PS part using AXI interface. Zynq PS section perform task
+			related to data aquisition and interfacing with PC using USB 2.0 interface.
+	\end{itemize}
+	
+	\section{Moving Average Filter}
+	\section{Gaussian Filter}
+	\section{I/Q mismatch compensation}
+	
+	
 	
 \chapter{Performance evaluation}
 
