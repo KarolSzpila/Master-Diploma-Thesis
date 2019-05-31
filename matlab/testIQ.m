@@ -16,8 +16,20 @@ pI = zeros(length(Q),1);
 %Iq = 4095*sin(2*pi*1000*t);
 %Qp = 4095*cos(2*pi*1000*t+pi/12);
 
-Iq = sin(2*pi*1280*t);
-Qp = cos(2*pi*1280*t+pi/12);
+Iq = sin(2*pi*1000*t);
+Qp = cos(2*pi*1000*t + pi/12) + 0.3;
+
+z = Iq./Qp;
+
+figure(2)
+hold on;
+grid on;
+grid minor;
+plot(t,z);
+
+
+pd = phdiffmeasure(Iq,Qp) * 180/pi;
+
 
 figure();
 hold on;

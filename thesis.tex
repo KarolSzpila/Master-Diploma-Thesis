@@ -725,13 +725,7 @@ $UART$
 	Moving Average Filter or Normalized Gaussian Filter. Signal after this correction are available in the
 	workspace under $Ip$ and $Qp$ names. Next signal are processed by Magnitude and Phase Correction algorithm.
 	$Ipp$ and $Qpp$ names of variables holding signal samples after full I/Q mismatch compensation.
-	\begin{center}\centering
-		\begin{figure}[!htb]
-   		\centering
-   		\includegraphics[height=9cm, angle =90]{images/simulink.png}
-    	\caption{\textit{Block diagram of simulation workflow.}} \label{fig:flow}
-		\end{figure}
-	\end{center}		
+		
 	
 \chapter{Hardware Implementation}
 	This chapter explains structure of hardware implemented in Zynq PL section. This includes data flow
@@ -769,7 +763,50 @@ $UART$
 	
 	
 \chapter{Performance evaluation}
-
+	This chapter contains results for all algorithms in simulation and implemented in real hardware.
+	\section{Simulations}
+		\subsection*{Moving Average Filter}
+			In this scenario the sine signal with following parameters is considered
+		
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/mov_av_t.png}
+   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+			\end{figure}
+		
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/mov_av_c.png}
+   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+			\end{figure}
+		
+		\subsection*{Gaussian Filter}
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/gauss_t.png}
+   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+			\end{figure}
+			
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/gauss_c.png}
+   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+			\end{figure}
+	\section{Hardware Implementation}
+	\section{On Chip Algorithm}
+		In this section performance of on chip I/Q mismatch compensation of AD9363 is evaluated.
+		\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/chip_sine_dc.png}
+   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+		\end{figure}
+		
+		\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/chip_sine_corr.png}
+   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+		\end{figure}
+	
 \chapter{ Conclusions}
 
 
