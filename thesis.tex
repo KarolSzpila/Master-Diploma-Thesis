@@ -125,20 +125,47 @@ $UART$
 \let\cleardoublepage\clearpage %usuwa puste strony pomiaedzy rozdziałami
 
 \chapter{Introduction}
+	Nowadays modern technologies are developing very rapidly often displacing older solution. This creates need
+	for very flexible systems that can adapt to the changes in the future. Such problem can be approached in
+	two ways: by moving processing part of the system form hardware to software, or by create re-configurable
+	hardware. Both approaches have its own advantages and disadvantages, but current trend on the market is
+	system composed of both: fast processing system and re-configurable hardware. This lead to creation of SoC
+	(System on Chip) which is build on the base of both solution. Such approach allows to utilize advantage of
+	one and the other. In RF system problem on easily adaptive system considers also transceiver part. For that
+	reason direct conversion is widely used in modern RF application. Such approach allows to limit hardware part
+	to the necessary minimum and move all further processing to the baseband processing system. 
 	
 	\section{Purpose and aim}
-			The purpose of this paper is to study various parameters defining RF signal quality and models of IQ
+			The purpose of this paper is to study various parameters defining RF signal quality and model of IQ
 		imbalance. Research concept of Software Defined Radio, principles of operation of such devices and capability
-		of Xilinx Zynq SoC in such domain. Evaluate different correction algorithms implementation. Compare it
-		performance for various type of signals: singletone, multitone, broadband, and 4-QAM, 8-QAM8 and 16-QAM
-		modulated. The comparison include simulation in Matlab, implementation hardware (FPGA part of ZYNQ SoC) and 			native correction inside RF transceiver chip.
+		of Xilinx Zynq SoC in such domain. Evaluation of different correction algorithms implementation. Evaluation
+		of their performance for Matlab and hardware implementation together with compenation built in RF agile
+		transceiver present on the board. Measurements includes various type of signals: single tone, multi tone 
+		and broadband.
+		The comparison include simulation in Matlab, implementation hardware (FPGA part of ZYNQ SoC) and
+		native correction implemented in RF transceiver hardware.
 		
 	\section{Thesis outline}
-	
+		This thesis is divided into following chapters:
+		\begin{itemize}
+			\item Chapter 1 contains brief introduction to this master thesis, presented problems and
+				  considered solutions.
+			\item Chapter 2 explains theory behind IQ signal including: model of the signal, its parameters,
+			      imbalance model, theoretical operation of IQ modulator and demodulator and concept of SDR.
+			\item Chapter 3 describes concept of SoC, describes hardware on chosen board and available tools.
+			\item Chapter 4 is mathematical introduction to the presented problem of IQ imbalance together
+			      with explanation of chosen correction algorithms.
+			\item Chapter 5 presents Matlab implementation of algorithms mentioned in chapter 4.
+			\item Chapter 6 presents same algorithms implemented in the real hardware.
+			\item Chapter 7 evaluates performance of all algorithhms in Matlab, implemented in hardware
+			      and built in RF agile transceiver present on the board.
+			\item Chapter 8 concludes all performed measurements, results and summarize this master thesis.
+		\end{itemize}			
 \chapter{Theoretical background}
-	In this chapter the theoretical operation of basic RF fronted components is explained. This elements
-	are mixers, quadrature modulators and demodulators. Next, widely used in RF communication, IQ signal model
-	is described, together with two imbalance models. After that Software Defined Radio concept is presented.
+	In this chapter the theoretical operation of basic RF fronted components is explained. Mentioned elements
+	are mixers, quadrature modulators and demodulators. Next widely used in RF communication IQ signal model
+	is described, together with single branch imbalance models. After that Software Defined Radio concept is
+	presented.
 
 	\section{Theoretical operation of RF mixer}
 		The mixer is one of the basics component used in RF communication. It is nonlinear circuit used for
@@ -159,15 +186,15 @@ $UART$
 		Where:
 		\begin{itemize}
 			\item $F_{i1}$ and $F_{i2}$ are input signal that are mixed together.
-			\item $F_i1 + F_i2$ is USB (Upper Side Band) output signal,
-			\item $F_i1 - F_i2$ is LSB (Lower Side Band) output signal.
+			\item $F_{i1} + F_{i2}$ is USB (Upper Side Band) output signal,
+			\item $F_{i1} - F_{i2}$ is LSB (Lower Side Band) output signal.
 		\end{itemize}
 		
 		In every mixing operation USB and LSB signal are generated. Depending on the relation between $RF$ and $LO$
 		signal one of the band is desired output and other is undesired image.
 		\\
 		
-		When $RF$ < $LS$, mixer works as up-converter USB is desired and LSB is undesired.
+		When $RF$ < $LS$ mixer works as up-converter USB is desired and LSB is undesired.
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{diag/upconv.png}
@@ -180,7 +207,7 @@ $UART$
     		\caption{\textit{Schematic of RF mixer working as up-converter.}}
 		\end{figure}
 		
-		When $RF$ < $LS$, mixer works as down-converter LSB is desired and USB is undesired..
+		When $RF$ < $LS$ mixer works as down-converter LSB is desired and USB is undesired..
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{diag/downconv.png}
@@ -193,8 +220,8 @@ $UART$
     		\caption{\textit{Schematic of RF mixer working as down-converter.}}
 		\end{figure}
 		
-		To remove necessary to include in the RF mixer design BPFs (Band Pass Filters). This filter
-		attenuates all frequencies outside specified band.
+		To remove unwanted band it is necessary to include in the RF mixer design BPFs (Band Pass Filters).
+		This filter attenuates all frequencies outside specified band.
 		\\
 		
 		Application for mixers are mostly:
@@ -202,15 +229,15 @@ $UART$
 			\item Frequency shifting - The most common application for RF mixer is changing signal frequency
 			with preservation of others parameters such as amplitude and phase.
 			This technology is mostly used in RF transmitter and receivers.
-			Such devices are called up-converters (for mixing signal with carrier) and down-converter for
-			(extracting signal from carrier).
+			Such devices are called up-converters (for mixing signal with carrier) and down-converter (for
+			extracting signal from carrier).
 			\item Phase comparison - It is possible to detect phase difference between two signal using mixer.
 			This RF mixer application is used in PLLs (Phase Locked Loops).
 		\end{itemize}
 	
 	\section{IQ signal model}
 			The term IQ is an abbreviation for in-phase and quadrature. Signal are considered in-phase when phase
-		of both is equal and quadrature when it differs by 90$\deg$. IQ data model shows changes in phase and
+		of both is equal and quadrature when it differs by 90$^{\circ}$. IQ data model shows changes in phase and
 		magnitude of a sine wave. Modification of these parameters allow to encode information upon a sine wave.
 		\\
 		
@@ -239,15 +266,17 @@ $UART$
 		\end{figure}
 		
 		\newpage
-		Using trigonometry, the polar coordinates can be converted into I and Q components of the signal using
+		Using trigonometry, the polar coordinates can be converted into I and Q components of the signal using following
 		equations:
 		\begin{itemize}
 			\item $I = A cos\left(2\pi f t\right)$, \label{eq:IQ}
 			\item $Q = A sin\left(2\pi f t\right)$,
 		\end{itemize}
+		\vspace{0.5cm}
 		
-		IQ data model is widely used in RF communication systems. It allows to distinguish type of modulation used 
-		on carrier. Allows to introduce concept of positive and negative frequency. Amplitude and phase angle form
+		IQ data model is widely used in RF communication systems. It gives possibility to distinguish type of 
+		modulation used 
+		on carrier and allows introduce concept of positive and negative frequency. Amplitude and phase angle form
 		seems to be more intuitive, however precisely varying the phase of a high-frequency carrier sine wave in a
 		hardware circuit according to an input message signal is difficult. Therefore such hardware modulators will
 		be expensive and hard to design and build. To avoid direct modulation of RF signal phase signal is decomposed
@@ -275,8 +304,8 @@ $UART$
 			\item Q - is amplitude of quadrature signal.
 		\end{itemize}
 		
-		Using this data samples representation, modulation of phase of the RF signal is possible just by modulation of
-		I/Q signals amplitudes and then mix it with carrier and quadrature of carrier using mixers. Schematics below 
+		Using this data samples representation modulation of phase of the RF signal is possible just by modulation of
+		I/Q signals amplitudes and then mixing it with carrier and quadrature of carrier using mixers. Schematics below 
 		shows structure of IQ modulator and demodulator.
 		
 		\begin{figure}[!htb]
@@ -298,10 +327,7 @@ $UART$
 		
 
 	\section{IQ imbalance models}
-	In this chapter, two IQ imbalance models are described. First is called SBIQM (Single-Branch IQ Imbalance Model).
-	In this model imbalance exist only in one branch. Second is called DBIQM (Dingle-Branch IQ Imbalance Model).
-	Algorithms presented in this thesis are based on DBIQM model. Mentioned model assumes imbalance in both I
-	and Q branch.
+		
 	\section{Software Defined Radio}
 		SDR (Software Defined Radio) is a radio communication system where components typically implemented in hardware 
 		(e.g. mixers, filters, amplifiers, modulators/demodulators), are instead implemented by the means of software.
@@ -315,7 +341,7 @@ $UART$
 		
 		\begin{itemize}
 			\item \textbf{Flexible RF fronted} is a first stage of SDR processing system. This part is configured by the means
-			software to match current requirements for best system performance. This is possible by using components numerically
+			software to match current requirements for best system performance. This is possible by using numerically
 			controlled components.
 			NCO (Numerically Controled Oscilators) which are used as flexible frequency generators. This component are
 			essential for I/Q modulators/demodulators as flexible carrier generators for mixers. Bandpass filters and equalizers\
@@ -333,7 +359,7 @@ $UART$
 			SoC. Variety of choice in this case allows creation of well-suited system for desired performance and cost range. 
 			Mentioned component is responsible with interfacing with external system for data exchange purpose. All logic related to
 			transmission is implemented here in the software including correction algorithms and application layer. Thanks to that
-			system can adapt to changes. This means improving signal processing software to improve quality of the processed signal
+			system can adapt to changes. This means changing software to improve quality of the processed signal
 			or even complete change of the application layer, by simply providing new software.
 		\end{itemize}
 		
@@ -356,12 +382,13 @@ $UART$
    		 		\caption{\textit{Schematic Adalm Pluto hardware}}
 			\end{figure}
 			
-			Adalm Pluto is already integrated with with MATLAB, Simulink, GNU Radio, and libIIO
+			Adalm Pluto is already integrated with with MATLAB, Simulink, GNU Radio, and libIIO which
 			allows to interface with the devices using C, C++, C\# or Python programming languages.
 			PlutoSDR is open software repository with all software and tools related to Adalm Pluto
-			including: HDL Project in Xillinx Vivado, Buildroot configuration for embedded Linux.
-			Main reason for choosing this SDR device was relatively low price in comparative to other
-			available solutions on the market. All other devices were FPGA based. Adalm Pluto core is 			
+			including: HDL Project in Xillinx Vivado and Buildroot configuration for embedded Linux.
+			Main reason for choosing this SDR device was relatively low price 136.80USD 
+			in comparative to other
+			available solutions on the market. Adalm Pluto core is 			
 			Zynq7010 SoC which is combination of ARM based processor capable of running Linux and
 			FPGA part which can communicate with the processor via AXI interface.
 		\subsection*{AD9363 Agile RF Transceiver}
@@ -399,11 +426,10 @@ $UART$
 			internal calibration functionality and all registers. Moreover allows to process revived
 			using filters designed in matlab and four gain control modes:
 			\begin{itemize}
-				\item manual configuration - gain is selected by user.
-				\item slow attack - gain is selected to attenuate  backgrund noise as much as
-				possible,
-				\item fast attack
-				\item hybrid attack.
+				\item manual configuration - gain is selected by user,
+				\item slow attack approach,
+				\item fast attack approach,
+				\item hybrid attack approach,
 				
 			\end{itemize}
 			\vspace{5mm}
@@ -424,19 +450,19 @@ $UART$
 		Library is composed of three main parts:
 		\begin{itemize}
 			\item local backend - responsible for  interfacing with the Linux kernel using
-				sysfs virtual filesystem,
-			\item network backend - which comunicatios tiwh the IIOD (IIO Deamon) by network link.	
+				sysfs virtual file system,
+			\item network backend - which communicates with the IIOD (IIO Deamon) by network link.	
 		\end{itemize}
 		
-		The IIOD is libiio based application that creates libiio contex that is using local backend
-		and then connects it to network backend. Described process allows to hare local context
-		with the server and allows interfacing with the evice using network.
+		The IIOD is libiio based application that creates libiio context which is using local backend
+		and then connects it to network backend. Described process allows to share local context
+		with the server and makes device accessible via network
 
 		
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{images/libiio_diagram.png}
-   		 	\caption{\textit{Block diagram of AD9363 RF transceiver}}
+   		 	\caption{\textit{Block diagram of libIIO working principles.}}
 		\end{figure}
 		
 		\newpage
@@ -444,9 +470,9 @@ $UART$
 		\subsection*{Introduction to SoC}
 		SoC is aberration from System on Chip. Such devices aggregates
 		many types of hardware in single chips including: ADCs, DACs, internal memory, external 
-		memory controllers, peripheral interfaces such as SPI, UART, I2C
-		interfaces controllers and many others. The main idea is that single silicon chip may be
-		used to implement functionality of entire system. This is cheaper and faster solution than
+		memory controllers, peripheral interfaces such as SPI, UART, I2C and many others. 
+		The main idea is that single silicon chip may be
+		used to implement functionality of entire system. Such approach results in cheaper and faster solution than
 		realizing such functionality on PCB using separate components. In the past such role
 		belonged to ASIC.
 		(Application Specific Integrated Circuits). The major disadvantages of such solution is lack
@@ -455,7 +481,7 @@ $UART$
 		clear need for more flexible device with faster development time. This need has been long
 		satisfied by a FPGAs. FPGA can be reconfigured as desired which means virtually no risk in
 		deploying solution which may require upgrade based on FPGA. Next step are SoC based solution.
-		SoC is combination of processor and FPGA. This allows to create fast application dependent
+		SoC is combination of processor and FPGA. This allows to create fast application dependent on the
 		hardware functionality. Moreover processor can run normal operating system which allows fast
 		development and flexibility of the solution.
 		
@@ -736,7 +762,7 @@ $UART$
 	\begin{figure}[!htb]
     	\centering
    		\includegraphics[width=\textheight, angle =90]{diag/hdl.png}
-    	\caption{\textit{Representation of sine wave in complex plain}}
+    	\caption{\textit{Block diagram of the PS logic structure.}}
     	\label{fig:polarplot}
 	\end{figure}
 	
@@ -763,11 +789,29 @@ $UART$
 	
 	
 \chapter{Performance evaluation}
-	This chapter contains results for all algorithms in simulation and implemented in real hardware.
+	This chapter presents results of simulation, hardware implementation and built in
+	functionality of AD9363 in IQ imbalance compensation. For all of these approaches
+	three different cases are considered:
+	\begin{itemize}
+		\item single tone - signal consisting of only one frequency,
+		\item multi tone - signal consisting of two different frequencies,
+		\item broadband - signal with band of specified width.
+	\end{itemize}
+	\vspace{1cm}
 	\section{Simulations}
+		In this section results of the algorithms implemented in the Matlab are
+		presented.
 		\subsection*{Moving Average Filter}
-			In this scenario the sine signal with following parameters is considered
-		
+			\subsubsection*{Single Tone}
+			In this scenario Moving Average Filter for DC offset removal is tested.
+			First test considers single ton signal with following test parameters:
+			\begin{itemize}
+				\item amplitude - 1,
+				\item frequency - 1000Hz,
+				\item DC offset in Q branch - 0.1
+				\item Moving Average Filter order - 256 
+			\end{itemize}
+			\newpage
 			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/mov_av_t.png}
@@ -780,6 +824,7 @@ $UART$
    			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
 			\end{figure}
 		
+		\newpage
 		\subsection*{Gaussian Filter}
 			\begin{figure}[!htb]
     			\centering
@@ -819,6 +864,8 @@ Stephen H. Hal, Garrett W. Hall, and James A. McCall.
 \textit{High-Speed Digital System Design - A Handbook of Interconnects Theory and Design Practices}.
 New York, Chichester, Weinheim, Brisbane, Singapore, Toronto, 2000.
 
+\bibitem{dddd}
+\textit{https://wiki.analog.com/_detail/resources/tools-software/linux-software/libiio_diagram.png?id=resources\%3Atools-software\%3Alinux-software\%3Alibiio}
 
 \end{thebibliography}
 %opcjonalnie może się tu pojawić spis rysunków i tabel

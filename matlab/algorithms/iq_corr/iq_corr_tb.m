@@ -13,8 +13,8 @@ Q = imag(SignalGen);
 t=linspace(0,1,length(I));
 
 t=linspace(0,1,length(SignalGen));
-I = 4096*sin(2*pi*1000*t) + 1000;
-Q = 4096*cos(2*pi*1000*t + pi/12);
+I = 4096*sin(2*pi*1000*t);
+Q = 4096*cos(2*pi*1000*t + pi/12) + 2000;
 [Icorr, Qcorr] = iq_corr(I', Q');
 
 figure(1)
