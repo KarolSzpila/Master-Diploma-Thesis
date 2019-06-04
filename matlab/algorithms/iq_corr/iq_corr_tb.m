@@ -13,8 +13,8 @@ Q = imag(SignalGen);
 t=linspace(0,1,length(I));
 
 t=linspace(0,1,length(SignalGen));
-I = 4096*sin(2*pi*1000*t);
-Q = 4096*cos(2*pi*1000*t + pi/12) + 2000;
+I = cos(2*pi*1000*t);
+Q = sin(2*pi*1000*t + pi/12) + 0.1;
 [Icorr, Qcorr] = iq_corr(I', Q');
 
 figure(1)
@@ -37,12 +37,12 @@ hold on;
 grid on;
 grid minor;
 plot(I,Q)
-xlim([-5000 5500])
-ylim([-5000 5500])
+xlim([-2 2])
+ylim([-2 2])
 subplot(1,2,2)
 hold on;
 grid on;
 grid minor;
 plot(Icorr, Qcorr);
-xlim([-5000 5500])
-ylim([-5000 5500])
+xlim([-2 2])
+ylim([-2 2])

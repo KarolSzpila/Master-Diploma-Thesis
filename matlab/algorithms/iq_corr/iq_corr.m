@@ -1,6 +1,6 @@
 function [ Iend, Qend ] = iq_corr( I, Q )
     step = 100;
-    range = 4096;
+    range = 1;
     bI = moving_average_fir( I, step);
     bQ = moving_average_fir( Q, step);
     
