@@ -26,6 +26,7 @@
 \usepackage{indentfirst}
 \usepackage{enumitem}
 \usepackage{listings}
+\usepackage{float}
 \usepackage{color} %red, green, blue, yellow, cyan, magenta, black, white
 \definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
 \definecolor{mylilas}{RGB}{170,55,241}
@@ -61,8 +62,8 @@
 \newtheorem{theorem}{Twierdzenie}[section] %nowe otoczenie do składania twierdzeń
 
 %dane do złożenia strony tytułowej
-\title{System lokalizacji samolotów z wykorzystaniem ADS-B}
-\engtitle{Airplane tracking system using ADS-B}
+\title{ }
+\engtitle{Problems of software implementation of SDR radio in programmable logic structures}
 \author{Karol Szpila}
 \supervisor{\vfil Ph.D., D.Sc. Grzegorz Budzyń\\
 \\ Institute of Telecommunications, Teleinformatics and Acoustics (I-28)}
@@ -110,7 +111,6 @@ $ADC$  & Analog to Digital Converter   \\
 $DAC$  & Digital to Analog Converter   \\
 $FPGA$ & Field Programmable Gate Array \\
 $SDR$  & Software Defined Radio \\
-$QAM$  & Quadrature Amplitude Modulation \\
 $RF$   & Radio Frequency \\
 $SoC$  & System on Chip   \\
 $SPI$  &
@@ -314,7 +314,7 @@ $UART$
     		\caption{\textit{Schematic of IQ modulator}}
     		\label{fig:polarplot}
 		\end{figure}
-		
+		\vspace{1cm}
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{images/iqdemod.png}
@@ -325,12 +325,148 @@ $UART$
 		The flexibility and simplicity of this solution compared to direct phase manipulations
 		is a reason why I/Q modulators and demodulators are so widely used and popular in RF hardware.
 		
-
+	\newpage
 	\section{IQ imbalance models}
+		In this section two models of IQ mismatch imbalance are presented. First model is called 
+		Single-Branch IQ Imbalance Model (SBIQMB) and IQ imbalance is modeled as amplitude and phase
+		error in only Q branch. Second is called Double-Branch IQ Imbalance Model (DBIQMB) and 
+		models IQ imbalance as amplitude and phase error in both branches.
 		
+		\subsection*{Single-Branch IQ Imbalance Model}
+			This model is characterized by mismatch existing only in Q branch. Amplitude error is
+			described as $g$ which results in $1-g$ represents total error in amplitude. Phase mismatch
+			is modeled $\phi$. This could be written as equation in following form:
+			
+		\begin{equation}
+			\begin{bmatrix}
+				I(t) \\
+				Q(t)
+			\end{bmatrix}
+			=
+			\begin{bmatrix}
+				1 & 0 \\
+				-g sin(\phi) & g cos(\phi)
+			\end{bmatrix}
+			\begin{bmatrix}
+				I_{RF}(t) \\
+				Q_{RF}(t)
+			\end{bmatrix} \label{eq:SBIQIM}
+		\end{equation}
+		
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{diag/sbiq.png}
+    		\caption{\textit{Schematic of SBIQIM.}}
+		\end{figure}
+		
+		where:
+		\begin{itemize}
+			\item $I_{RF}(t)$ and $Q_{RF}(t)$ IQ components of received signal.
+			\item $I(t)$ and $Q(t)$ IQ components with introduced mismatch.
+		\end{itemize}
+		\subsection*{Double-Branch IQ Imbalance Model}
+			This model is characterized by mismatch existing in Q both. In the I branch 
+			mismatch is described as amplitude error 1 + $\epsilon$ and phase error $\phi$.
+			Respectively in Q branch amplitude error is 1 - $\epsilon$ and phase 
+			error is $-\phi$.
+			
+			\vspace{1cm}
+			\begin{equation}
+				\begin{bmatrix}
+					I(t) \\
+					Q(t)
+				\end{bmatrix}
+				=
+				\begin{bmatrix}
+					(1 + \epsilon) cos(\phi) & (1 + \epsilon) sin(\phi) \\
+					(1 - \epsilon) sin(\phi) & (1 - \epsilon) cos(\phi)
+				\end{bmatrix}
+				\begin{bmatrix}
+					I_{RF}(t) \\
+					Q_{RF}(t) 
+				\end{bmatrix} \label{eq:DBIQIM}
+			\end{equation}
+			\vspace{0.5cm}
+			\begin{figure}[H]
+    		\centering
+   				\includegraphics[width=\textwidth]{diag/dbiqm.png}
+    			\caption{\textit{Schematic of DBIQIM.}}
+			\end{figure}
+			
+		where:
+		\begin{itemize}
+			\item $I_{RF}(t)$ and $Q_{RF}(t)$ IQ components of received signal.
+			\item $I(t)$ and $Q(t)$ IQ components with introduced mismatch.
+		\end{itemize}
+		\newpage
+		\subsection*{Relation between SBIQIM and DBIQIM}
+			As mentioned before both models describes IQ mismatch in different ways. DBIQIM is
+			equivalent to SBIQIM processed by two additional matrices. Matrix $G$ that represents gain
+			and matrix $R$ which represents rotation.
+			Equations below shows relation between SBIQIM and DBIQIM:
+			\\
+			
+			
+			As mentioned earlier:
+			\[
+				SBIQIM = 
+				\begin{bmatrix}
+				1 & 0 \\
+				-g sin(\phi) & g cos(\phi)
+				\end{bmatrix}
+			\]
+			\[
+				DBIQIM = 
+				\begin{bmatrix}
+					(1 + \epsilon) cos(\phi) & (1 + \epsilon) sin(\phi) \\
+					(1 - \epsilon) sin(\phi) & (1 - \epsilon) cos(\phi)
+				\end{bmatrix}
+			\]
+			\vspace{0.5cm}
+			\begin{equation}
+				DBIQM = G\cdot SBIQIM \cdot R
+			\end{equation}
+			\\
+			
+			
+			$G$ and $R$ are defined as follows:
+			\begin{equation}
+				G = \frac{2}{1+g}
+			\end{equation}
+			\begin{equation}
+				R = 
+				\begin{bmatrix}
+					cos(-\frac{\phi}{2}) & sin(-\frac{\phi}{2}) \\
+				   -sin(-\frac{\phi}{2}) & cos(-\frac{\phi}{2})
+				\end{bmatrix}
+			\end{equation}
+			\\
+			
+			
+			Using equation above transition between models parameters works as follows:
+			\begin{itemize}
+				\item Calculation of DBIQIM parameters based on SBIQIM.
+				\[
+					\epsilon = \frac{1-g}{1+g}
+				\]
+				\[
+					\phi_{DBIQIM} = - \phi_{SBIQIM}/2
+				\]
+				\item Calculation of SBIQIM parameters based on DBIQIM.
+				\[
+					g = \frac{1-\epsilon}{1+\epsilon}
+				\]
+				\[
+					\phi_{SBIQIM} = - 2\phi_{DBIQIM}
+				\]
+			\end{itemize}
+			
+	\newpage
 	\section{Software Defined Radio}
-		SDR (Software Defined Radio) is a radio communication system where components typically implemented in hardware 
-		(e.g. mixers, filters, amplifiers, modulators/demodulators), are instead implemented by the means of software.
+		SDR (Software Defined Radio) is a radio communication system where components typically
+		 implemented in hardware 
+		(e.g. mixers, filters, amplifiers, modulators/demodulators), are instead implemented
+		 by the means of software.
 		
 		Below the block diagram of SDR device is presented:
 		\begin{figure}[!htb]
@@ -720,38 +856,6 @@ $UART$
 			\end{bmatrix}\label{eq:iqcorr}
 		\end{equation}
 		The I/Q mismatch correction  can be now applied using \ref{eq:iqcorr} formula.
-\chapter{Simulations}
-	This chapter contains description of test environment, matlab algorithms implementation and its\
-	performance evaluation
-	\vspace{1cm}
-	\subsection*{Moving Average Filter}
-		This algorithm was directly implemented using \ref{eq:mva_fir}, with order of the filter as one
-		of the input parameters.
-		\begin{itemize}[label={}]
-			\item \lstinputlisting[basicstyle=\scriptsize]{matlab/algorithms/moving_average_filter/moving_average_fir.m}
-		\end{itemize}
-	\vspace{1cm}
-	\subsection*{Normalized Gaussian Filter}
-		Presented filter is direct implementation of \ref{eq:gauss} equation, with window siz and
-		standard deviations as input parameters.
-		\begin{itemize}[label={}]
-			\item \lstinputlisting[basicstyle=\scriptsize]{matlab/algorithms/gauss_smooth/gauss_smooth.m}
-		\end{itemize}
-		
-	\newpage
-	\subsection*{Magnitude and Phase Correction}
-		Presented filter is direct implementation of \ref{eq:gauss} equation, with window siz and
-		standard deviations as input parameters.
-		\begin{itemize}[label={}]
-			\item \lstinputlisting[basicstyle=\scriptsize]{matlab/algorithms/iq_corr/iq_corr.m}
-		\end{itemize}
-		
-	Figure \ref{fig:flow} presents flow of the test application in Matlab environment. IQ samples are first
-	processed by DC offset removal algorithm depending one the value of $dc_corr_type$ variable, by either
-	Moving Average Filter or Normalized Gaussian Filter. Signal after this correction are available in the
-	workspace under $Ip$ and $Qp$ names. Next signal are processed by Magnitude and Phase Correction algorithm.
-	$Ipp$ and $Qpp$ names of variables holding signal samples after full I/Q mismatch compensation.
-		
 	
 \chapter{Hardware Implementation}
 	This chapter explains structure of hardware implemented in Zynq PL section. This includes data flow
@@ -759,12 +863,6 @@ $UART$
 	
 	\section{Data Flow Path}
 	Diagram below shows data path for I/Q samples from Zynq PS system to PL logic.
-	\begin{figure}[!htb]
-    	\centering
-   		\includegraphics[width=\textheight, angle =90]{diag/hdl.png}
-    	\caption{\textit{Block diagram of the PS logic structure.}}
-    	\label{fig:polarplot}
-	\end{figure}
 	
 	\begin{itemize}
 		\item \textit{AXI_AD9361} - IP core provided by Analog devices. This block is responsible for
@@ -782,7 +880,49 @@ $UART$
 			related to data aquisition and interfacing with PC using USB 2.0 interface.
 	\end{itemize}
 	
+	\begin{figure}[H]
+    	\centering
+   		\includegraphics[width=\textheight, angle =90]{diag/hdl.png}
+    	\caption{\textit{Block diagram of the PS logic structure.}}
+    	\label{fig:polarplot}
+	\end{figure}
+	
 	\section{Moving Average Filter}
+		Moving Average Filter w
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|l|l|l|l|}
+		\hline
+		Clock  & Period & Estimated & Uncertanity \\ \hline
+		100MHz & 10ns   & 8.358     & 1.25        \\ \hline
+		\end{tabular}
+		\caption{Timing estimation of C synthesis of Moving Average Filter.}
+	\end{table}
+	
+	\begin{table}[]
+		\centering
+		\caption{}
+		\begin{tabular}{|l|l|l|l|}
+		\hline
+		\multicolumn{2}{|l|}{Latency} & \multicolumn{2}{l|}{Interval} \\ \hline
+			min           & max           & min           & max           \\ \hline
+			1             & 1             & 2             & 2             \\ \hline
+		\end{tabular}
+		\caption{Latency estimation of C synthesis of Moving Average Filter.}
+	\end{table}
+	
+	\begin{table}[]
+		\centering
+		\caption{}
+		\begin{tabular}{|l|l|l|l|}
+		\hline
+		BRAM\_18K & DSP48E & FF  & LUT \\ \hline
+		2         & 0      & 102 & 418 \\ \hline
+		\end{tabular}
+		\caption{Resource utilization for Moving Average Filter.}
+	\end{table}
+	
 	\section{Gaussian Filter}
 	\section{I/Q mismatch compensation}
 	
@@ -800,58 +940,309 @@ $UART$
 	\vspace{1cm}
 	\section{Simulations}
 		In this section results of the algorithms implemented in the Matlab are
-		presented.
-		\subsection*{Moving Average Filter}
-			\subsubsection*{Single Tone}
-			In this scenario Moving Average Filter for DC offset removal is tested.
-			First test considers single ton signal with following test parameters:
-			\begin{itemize}
-				\item amplitude - 1,
-				\item frequency - 1000Hz,
-				\item DC offset in Q branch - 0.1
-				\item Moving Average Filter order - 256 
-			\end{itemize}
-			\newpage
-			\begin{figure}[!htb]
+		tested in two cases: without additional noise and with noise of normal distribution and 
+		amplitude of 0.1.
+		Algorithms were tested in the following conditions:
+		\begin{itemize}
+			\item Amplitude - 1,
+			\item I DC offset - 0.1,
+			\item Moving Average Filter Order - 256.
+			\item Gaussian filter $\sigma$ = 5, window size = 30
+		\end{itemize}
+		\subsection*{DC offset removal}
+		In this section simulations of DC offset correction algorithms are compared for signle tone
+		signal of frequency $f=1kHz$ with and without additional noise.
+
+		\subsubsection*{Scenario 1: Noiseless signal}
+			\vspace{1cm}	
+			\begin{figure}[H]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/mov_av_t.png}
-   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+   				\includegraphics[width=\textwidth]{plots/dc_comp.png}
+   		 		\caption{\textit{Comparison of DC offset algorithms outputs in time domain.}}
 			\end{figure}
-		
+			\vspace{1cm}		
 			\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/mov_av_c.png}
-   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
-			\end{figure}
-		
-		\newpage
-		\subsection*{Gaussian Filter}
+   				\includegraphics[width=\textwidth]{plots/dc_f.png}
+   		 		\caption{\textit{Comparison of DC offset algorithms outputs in frequency domain.}}
+			\end{figure}		
 			\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/gauss_t.png}
-   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+   				\includegraphics[width=\textwidth]{plots/dc_c.png}
+   		 		\caption{\textit{Comparison of constellation diagram for tested algorithms.}}
 			\end{figure}
 			
+		\subsubsection*{Scenario 1: Noisy signal}
+		\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/dc_comp_n.png}
+   		 		\caption{\textit{Comparison of DC offset algorithms outputs in time domain.}}
+		\end{figure}		
+		\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/dc_c.png}
+   		 \caption{\textit{Comparison of constellation diagram for tested algorithms.}}
+		\end{figure}
+		\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/dc_f.png}
+   		 		\caption{\textit{Comparison of DC offset algorithms outputs in frequency domain.}}
+		\end{figure}
+		Gaussian filters needs almost three times lower number of samples to work correctly in
+		comparison to Moving Average Filter. It means lower delay in processing path. Gaussian
+		filter distort magnitude of the signal, but this problem will be resolved by Magnitude and
+		Phase correction algorithm.
+	\newpage
+	\subsection*{Single Tone Signal}
+		In this case IQ mismatch compensation with two DC offset removal algorithms are compared for
+		single tone signal with frequency $f=1kHz$ with and without additional noise.
+		\subsubsection*{Scenario 1: Noiseless signal}
 			\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/gauss_c.png}
-   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+   				\includegraphics[width=\textwidth]{plots/single_f.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms 
+   		 		for signle tone signal.}}
+   		 	\end{figure}
+   		 	\vspace{1cm}
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/single_c.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for signle tone signal.}}
 			\end{figure}
+		\newpage
+		\newpage
+		\subsubsection*{Scenario 2: Noisy signal}
+			\vspace{1cm}
+			\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/single_nf.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms 
+   		 		for signle tone signal with noise.}}
+   		 	\end{figure}	
+   		 	\vspace{2cm}
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/single_nc.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for signle tone signal with noise.}}
+   		 	\end{figure}
+   		 	
+   	\newpage
+   	\subsection*{Multi tone}
+   		In this case IQ mismatch compensation with two DC offset removal algorithms are compared for
+		multi tone signal with frequencies $f1=1kHz$ and $f2=0.5kHz$ with and without additional noise.
+		\subsubsection*{Scenario 1: Noiseless signal}\
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/multi_f.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms 
+   		 		for multi tone signal.}}
+   		 	\end{figure}	
+   		 	\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/multi_c.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms
+   		 		for multi tone.}}
+   		 	\end{figure}		
+		\subsubsection*{Scenario 1: Noisy signal}
+			\vspace{1cm}
+			\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/multi_nf.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms for 
+   		 		multi tone signal with noise.}}
+   		 	\end{figure}
+   		 	\vspace{2cm}	
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/multi_nc.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for multi tone signal with noise.}}
+   		 	\end{figure}
+   	\newpage
+	\subsection*{Broadband}
+		In this case IQ mismatch compensation with two DC offset removal algorithms are compared for
+		broadband signal in frequency range from $f_s=0.5kHz$ to $f_e=1kHz$ with and without additional
+		noise.
+		\subsubsection*{Scenario 1: Noiseless signal}
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/band_f.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms for
+   		 		broadband signal.}}
+   		 	\end{figure}	
+   		 	\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/band_c.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for broadband signal.}}
+   		 	\end{figure}
+   		\newpage
+		\subsubsection*{Scenario 1: Noisy signal}
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/band_nf.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms for
+   		 		broadband signal with noise.}}
+   		 	\end{figure}	
+   		 	\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/band_nc.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for broadband signal with noise.}}
+   		 	\end{figure}
+   	\newpage	
 	\section{Hardware Implementation}
+		This section contains description of all algorithms implemented in Zynq PL section and its 
+		performance evaluation.
+	 \subsection*{DC offset removal}
+	 
+	 	\subsubsection*{Moving Average Filter}
+	 	\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/my_dc.png}
+   		 	\caption{\textit{Received signal spectrum with DC offset removal implemented in Zynq PL
+   		 	section.}}
+   		\end{figure}
+   		
+		\subsection*{Single Tone Signal}
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/my_single_mav.png}
+   		 	\caption{\textit{Received single tone signal spectrum with IQ mismatch compensation with
+   		 	Moving Average Filter.}}
+   		\end{figure}
+   		
+   		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/my_single_gauss.png}
+   		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
+   		 	Gaussian Filter.}}
+   		\end{figure}	
+   		
+   		\subsection*{Multiton Signal}
+  		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/my_multi_mav.png}
+   		 	\caption{\textit{Received multi tone signal spectrum with IQ mismatch compensation with
+   		 	Moving Average Filter.}}
+   		\end{figure}	
+   		
+   		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/my_multi_gauss.png}
+   		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
+   		 	Gaussian Filter.}}
+   		\end{figure}		
+		\subsection*{Broadband Signal}	
+		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/my_band_mav.png}
+   		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
+   		 	Moving Average Filter.}}
+   		\end{figure}
+   		
+   		\begin{figure}[!htb]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/my_band_gauss.png}
+   		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
+   		 	Gaussian Filter.}}
+   		\end{figure}
+	\newpage
 	\section{On Chip Algorithm}
-		In this section performance of on chip I/Q mismatch compensation of AD9363 is evaluated.
-		\begin{figure}[!htb]
+		This section contains performance evaluation of compensation algorithms built in AD9363.
+		\begin{itemize}
+			\item Moving Average Filter Order - 256.
+			\item Gaussian filter $\sigma$ = 5, window size = 30
+		\end{itemize}
+	    \vspace{1cm}	
+		All test were performed using IIO Oscilloscope program.
+		Transmit and receive path are configured as follows:
+		\begin{itemize}
+			\item sampling rate - $30.719998$ MSPS,
+			\item bandwidth - $18MHz$.,
+			\item TX LO frequency - $2799.999998$ MHz,
+			\item RX LO frequency - $2799.999998$ MHz.
+		\end{itemize}
+
+	    \vspace{1cm}
+		\subsection*{DC offset removal}
+			In this case DC offset removal algorithm implemented in chip is tested.
+			Test were performed for the single tone signal with the following parameters:
+			\begin{itemize}
+				\item sampling frequency - $40kHz$,
+				\item signal frequency - $1kHz$,
+				\item signal amplitude - 1,
+				\item DC offset in I branch - 0.1
+			\end{itemize}
+			\newpage
+   		 	\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/chip_sine_dc.png}
-   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
-		\end{figure}
-		
-		\begin{figure}[!htb]
+   				\includegraphics[width=\textwidth]{plots/real_dcoff.png}
+   		 		\caption{\textit{Received signal spectrum without DC offset removal.}}
+   		 	\end{figure}
+   		 	\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/chip_sine_corr.png}
-   			 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
-		\end{figure}
-	
+   				\includegraphics[width=\textwidth]{plots/real_dcon.png}
+   		 		\caption{\textit{Received signal spectrum with AD9363 built in DC offset removal.}}
+   		 	\end{figure}
+			dc off   		 	
+   		 	fund - 13.17
+   		 	dc on - 37.06
+   		 	img - 68.21
+   		 	fund -13.71 dbfs
+   		 	dc - 84.01
+   		 	img - 70.50
+   		\newpage
+		\subsection*{Single Tone Signal}
+		In this case built in IQ mismatch compensation and DC offset removal algorithms are
+	 	tested for
+		single tone signal with frequency $f=1kHz$.
+		\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/real_single_off.png}
+   		 		\caption{\textit{Received single tone signal spectrum without IQ mismatch compensation.}}
+   		 	\end{figure}
+   		 	fund - 13.10
+   		 	dc on - 40.50
+   		 	img - 44.50
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/real_single_on.png}
+   		 		\caption{\textit{Received single tone signal spectrum with IQ mismatch compensation.}}
+   		 	\end{figure}
+   		 	fund - 12.94
+   		 	dc on - 75.08
+   		 	img - 92.49
+   		\newpage
+   	\subsection*{Multiton Signal}
+   		In this case built in IQ mismatch compensation and DC offset removal algorithms are
+	 	tested for multi signal with frequencies $f1=1kHz$ and $f2=0.5kHz$.
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/real_multi_off.png}
+   		 		\caption{\textit{Received multi tone signal spectrum without IQ mismatch compensation.}}
+   		 	\end{figure}
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/real_multi_on.png}
+   		 		\caption{\textit{Received multi tone signal spectrum with IQ mismatch compensation.}}
+   		 	\end{figure}
+   	 \newpage	
+	 \subsection*{Broadband Signal}
+	 	In this case built in IQ mismatch compensation and DC offset removal algorithms are
+	 	tested for broadband signal in frequency range from $f_s=0.5kHz$ to $f_e=1kHz$.
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/real_band_off.png}
+   		 		\caption{\textit{Received broadband signal spectrum without IQ mismatch compensation.}}
+   		 	\end{figure}
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=\textwidth]{plots/real_band_on.png}
+   		 		\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation.}}
+   		 	\end{figure}	 
 \chapter{ Conclusions}
 
 
@@ -867,6 +1258,10 @@ New York, Chichester, Weinheim, Brisbane, Singapore, Toronto, 2000.
 \bibitem{dddd}
 \textit{https://wiki.analog.com/_detail/resources/tools-software/linux-software/libiio_diagram.png?id=resources\%3Atools-software\%3Alinux-software\%3Alibiio}
 
+\bibitem
+SS.W. Ellingson
+\textit{Correcting I-Q Imbalance in Direct Conversion
+Receivers}
 \end{thebibliography}
 %opcjonalnie może się tu pojawić spis rysunków i tabel
 % \listoffigures
