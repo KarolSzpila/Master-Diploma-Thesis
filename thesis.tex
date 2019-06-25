@@ -62,7 +62,7 @@
 \newtheorem{theorem}{Twierdzenie}[section] %nowe otoczenie do składania twierdzeń
 
 %dane do złożenia strony tytułowej
-\title{ }
+\title{Zagadnienia implementacji programowego radia SDR w programowalnych strukturach logicznych}
 \engtitle{Problems of software implementation of SDR radio in programmable logic structures}
 \author{Karol Szpila}
 \supervisor{\vfil Ph.D., D.Sc. Grzegorz Budzyń\\
@@ -139,15 +139,15 @@ $USB$  & Upper Side Band \\
 	hardware. Both approaches have its own advantages and disadvantages, but current trend on the market is
 	system composed of both: fast processing system and re-configurable hardware. This lead to creation of SoC
 	(System on Chip) which is build on the base of both solution. Such approach allows to utilize advantage of
-	one and the other. In RF system problem on easily adaptive system considers also transceiver part. For that
+	one and the other. In RF system problem of easily adaptive system considers also transceiver part. For that
 	reason direct conversion is widely used in modern RF application. Such approach allows to limit hardware part
 	to the necessary minimum and move all further processing to the baseband processing system. 
 	
 	\section{Purpose and aim}
 			The purpose of this paper is to study various parameters defining RF signal quality and model of IQ
 		imbalance. Research concept of Software Defined Radio, principles of operation of such devices and capability
-		of Xilinx Zynq SoC in such domain. Evaluation of different correction algorithms implementation. Evaluation
-		of their performance for Matlab and hardware implementation together with compenation built in RF agile
+		of Xilinx Zynq SoC in such domain. Evaluation of different correction algorithms implementations. Test
+		of their performance in Matlab and hardware implementation together with compenation built in RF agile
 		transceiver present on the board. Measurements includes various type of signals: single tone, multi tone 
 		and broadband.
 		The comparison include simulation in Matlab, implementation hardware (FPGA part of ZYNQ SoC) and
@@ -160,19 +160,18 @@ $USB$  & Upper Side Band \\
 				  considered solutions.
 			\item Chapter 2 explains theory behind IQ signal including: model of the signal, its parameters,
 			      imbalance model, theoretical operation of IQ modulator and demodulator and concept of SDR.
-			\item Chapter 3 describes concept of SoC, describes hardware on chosen board and available tools.
+			\item Chapter 3 describes concept of SoC and hardware used for tests.
 			\item Chapter 4 is mathematical introduction to the presented problem of IQ imbalance together
 			      with explanation of chosen correction algorithms.
-			\item Chapter 5 presents Matlab implementation of algorithms mentioned in chapter 4.
-			\item Chapter 6 presents same algorithms implemented in the real hardware.
-			\item Chapter 7 evaluates performance of all algorithhms in Matlab, implemented in hardware
+			\item Chapter 5 presents hardware implementation of presented algortihms.
+			\item Chapter 6 evaluates performance of all algorithhms in Matlab, implemented in hardware.
 			      and built in RF agile transceiver present on the board.
-			\item Chapter 8 concludes all performed measurements, results and summarize this master thesis.
+			\item Chapter 7 concludes all performed measurements, results and summarize this master thesis.
 		\end{itemize}			
 \chapter{Theoretical background}
 	In this chapter the theoretical operation of basic RF fronted components is explained. Mentioned elements
 	are mixers, quadrature modulators and demodulators. Next widely used in RF communication IQ signal model
-	is described, together with single branch imbalance models. After that Software Defined Radio concept is
+	is described, together with imbalance models. After that Software Defined Radio concept is
 	presented.
 
 	\section{Theoretical operation of RF mixer}
@@ -183,7 +182,7 @@ $USB$  & Upper Side Band \\
 		
 		RF mixer is three port devices, which takes as an input two signal and produces signal consisting of 
 		the two frequencies on the output. Due to the non linearity of the mixer the new signal on the different
-		frequency is generated.
+		frequency is generated. \cite{mix} 
 		
 		\begin{figure}[!htb]
     		\centering
@@ -232,7 +231,7 @@ $USB$  & Upper Side Band \\
 		This filter attenuates all frequencies outside specified band.
 		\\
 		
-		Application for mixers are mostly:
+		Application for mixers are mostly \cite{mix}
 		\begin{itemize}
 			\item Frequency shifting - The most common application for RF mixer is changing signal frequency
 			with preservation of others parameters such as amplitude and phase.
@@ -343,7 +342,7 @@ $USB$  & Upper Side Band \\
 		\subsection*{Single-Branch IQ Imbalance Model}
 			This model is characterized by mismatch existing only in Q branch. Amplitude error is
 			described as $g$ which results in $1-g$ represents total error in amplitude. Phase mismatch
-			is modeled $\phi$. This could be written as equation in following form:
+			is modeled $\phi$. This could be written as equation in following form \cite{iq_model}
 			
 		\begin{equation}
 			\begin{bmatrix}
@@ -376,7 +375,7 @@ $USB$  & Upper Side Band \\
 			This model is characterized by mismatch existing in Q both. In the I branch 
 			mismatch is described as amplitude error 1 + $\epsilon$ and phase error $\phi$.
 			Respectively in Q branch amplitude error is 1 - $\epsilon$ and phase 
-			error is $-\phi$.
+			error is $-\phi$ \cite{iq_model}. This can be rewritten as follows: 
 			
 			\vspace{1cm}
 			\begin{equation}
@@ -411,7 +410,7 @@ $USB$  & Upper Side Band \\
 			As mentioned before both models describes IQ mismatch in different ways. DBIQIM is
 			equivalent to SBIQIM processed by two additional matrices. Matrix $G$ that represents gain
 			and matrix $R$ which represents rotation.
-			Equations below shows relation between SBIQIM and DBIQIM:
+			Equations below shows relation between SBIQIM and DBIQIM \cite{iq_model}
 			\\
 			
 			
@@ -458,7 +457,7 @@ $USB$  & Upper Side Band \\
 					\epsilon = \frac{1-g}{1+g}
 				\]
 				\[
-					\phi_{DBIQIM} = - \phi_{SBIQIM}/2
+					\phi_{DBIQIM} = - \frac{\phi_{SBIQIM}}{2}
 				\]
 				\item Calculation of SBIQIM parameters based on DBIQIM.
 				\[
@@ -474,7 +473,7 @@ $USB$  & Upper Side Band \\
 		SDR (Software Defined Radio) is a radio communication system where components typically
 		 implemented in hardware 
 		(e.g. mixers, filters, amplifiers, modulators/demodulators), are instead implemented
-		 by the means of software.
+		 by the means of software \cite{sdr}.
 		\\
 		
 		
@@ -1421,6 +1420,10 @@ $USB$  & Upper Side Band \\
 R.G Lyons
 \textit{„Wprowadzenie do cyfrowego przetwarzania sygnałów, WKiŁ, 1999}
 
+\bibitem{mix}
+Li, Richard Chi Hsi
+\textit{RF Circuit Design, Hoboken, NJ, USA: John Wiley & Sons, Inc.}
+
 \bibitem{iqcorr} 
 S.W. Ellingson. 
 \textit{Correcting I-Q Imbalance in Direct Conversion
@@ -1435,6 +1438,10 @@ Markku Renfors
 \bibitem{iq_imball}
 Guanbin Xing, Manyuan Shen, Hui Liu.
 \textit{Frequency Offset and I/Q Imbalance Compensation for Direct-Conversion Receivers. IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS, VOL. 4, NO. 2, MARCH 2005.}
+
+\bibitem{sdr}
+Hüseyin Arslan, Joseph Mitola III
+\textit{Cognitive radio, software‐defined radio, and adaptive wireless systems, 2007 John Wiley & Sons, Ltd.}
 
 \bibitem{filter_design}
 T. W. Parks,
