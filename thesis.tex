@@ -108,14 +108,22 @@
 \begin{table}[!htb]
 \begin{tabular}{ll}
 $ADC$  & Analog to Digital Converter   \\
+$ASIC$ & Application-Specific Integrated Circuit \\
 $DAC$  & Digital to Analog Converter   \\
+$DBIQIM$ & Double Branch IQ Imbalance Model \\
+$CPU$  & Central Processing Unit \\
+$FIR$  & Finite Impulse Response \\ 
 $FPGA$ & Field Programmable Gate Array \\
+$IF$   & Intermediate Frequency \\
+$IQ$   & In-phase Quadrature \\
+$LO$   & Local Oscillator \\
+$LSB$  & Lower Side Band \\
 $SDR$  & Software Defined Radio \\
+$PLL$  & Phase Locked Loop \\
 $RF$   & Radio Frequency \\
+$SBIQIM$ & Single Branch IQ Imbalance Model \\
 $SoC$  & System on Chip   \\
-$SPI$  &
-
-$UART$                        
+$USB$  & Upper Side Band \\                  
 \end{tabular}
 \end{table}
 
@@ -467,6 +475,8 @@ $UART$
 		 implemented in hardware 
 		(e.g. mixers, filters, amplifiers, modulators/demodulators), are instead implemented
 		 by the means of software.
+		\\
+		
 		
 		Below the block diagram of SDR device is presented:
 		\begin{figure}[!htb]
@@ -499,6 +509,11 @@ $UART$
 			or even complete change of the application layer, by simply providing new software.
 		\end{itemize}
 		
+		SDR devices are characterized by very fast ADC and DAC converters which are necessary for 
+		direct conversion. For example in secondary air plain surveillance systems (ADS-B), the
+	    carrier frequency is 1.09GHz. By Nyquist law this requires at least two times higher frequency
+	    sampling which is 2.18GHz.
+	    
 \chapter{Hardware and tools}
 	This chapter describes chosen hardware, tools and explains reasons behind such decisions.
 	\section{Adalm Pluto and AD tools}
@@ -509,13 +524,13 @@ $UART$
 			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{images/plutoimg.png}
-    			\caption{\textit{Image of Adalm Pluto device.}}
+    			\caption{\textit{Photo of Adalm Pluto device \cite{pluto_photo}.}}
 			\end{figure}
 			\newpage
 			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=11cm]{images/pluto_schematic.png}
-   		 		\caption{\textit{Schematic Adalm Pluto hardware}}
+   		 		\caption{\textit{Schematic Adalm Pluto hardware \cite{pluto_scheamtic}.}}
 			\end{figure}
 			
 			Adalm Pluto is already integrated with with MATLAB, Simulink, GNU Radio, and libIIO which
@@ -534,7 +549,7 @@ $UART$
 			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{images/ad9361_sch.png}
-   		 		\caption{\textit{Block diagram of AD9363 RF transceiver}}
+   		 		\caption{\textit{Block diagram of AD9363 RF transceiver \cite{ad9363_diag}.}}
 			\end{figure}
 			
 			Ad9363 features:
@@ -598,7 +613,7 @@ $UART$
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{images/libiio_diagram.png}
-   		 	\caption{\textit{Block diagram of libIIO working principles.}}
+   		 	\caption{\textit{Block diagram of libIIO working principles. \cite{libioo}}}
 		\end{figure}
 		
 		\newpage
@@ -641,7 +656,7 @@ $UART$
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{images/zynq.jpeg}
-   		 	\caption{\textit{Block diagram fo Zynq 7000 family SoC}}
+   		 	\caption{\textit{Block diagram fo Zynq 7000 family SoC. \cite{zynq_diag}}}
 		\end{figure}
 		\newpage
 
@@ -684,30 +699,41 @@ $UART$
 			\\
 			
 			
-			The filter equations is presented below:
+			The filter equations is presented below \cite{mav}:
 			\begin{equation}
-				y[n] = \frac{1}{N} \sum_{k=0}^{N-1}x[n-k], \label{eq:mva_fir}
+				y[n] = \frac{1}{N} \sum_{k=0}^{N-1}x[n-k], \label{eq:mva_fir} 
 			\end{equation}
+			
 			where:
 			\begin{itemize}
 				\item   $N$ is order of the filter.
 				\item	$y[n]$ is filtered sample at n-th step,
 				\item   $x[n]$ is n-th sample from receiver.
-			\end{itemize}
+			\end{itemize}			
+			
+			DC components of I and Q branches are calculated using equation \ref{eq:mva_fir},
+			where $x[n-k]$ is substituted with corresponding I or Q sample.
+
+			\[
+				I_{mean}[n] = \frac{1}{N} \sum_{k=0}^{N-1}I[n-k]
+			\]
+			\[
+				Q_{mean}[n] = \frac{1}{N} \sum_{k=0}^{N-1}Q[n-k]
+			\]
+			
 			Corrected values are calculated as follows:
 			\[
-				I/Q_{corr} = I/Q - I/Q_{mean},
+			\renewcommand*{\arraystretch}{1.3} 
+			\begin{array}{ll}
+				I_{corr}(n) = I(n) - I_{mean}(n), \\
+				I_{corr}(n) = Q(n) - Q_{mean}(n)
+			\end{array}
 			\]
-			where:
-			\begin{itemize}
-				\item I/Q is recived I/Q sample,
-				\item $I/Q_{mean}$ is DC offset calculated using Moving Average Filter.
-			\end{itemize}
-			\vspace{1cm}
 			
 			Algorithm introduces delay by N samples in the signal. It is important to that the number of
 			samples taken into consideration must extend at least one period of the signal. Otherwise
 			filter will works white noise attenuator.
+			
 		\subsection*{Normalized Gaussian Filter}
 			Normalized Gaussian Filter is filter whose impulse response has shape of Gaussian
 			function with all values in range from 0 to 1.
@@ -721,25 +747,33 @@ $UART$
 				\item $\sigma$ is standard deviation. 
 			\end{itemize}
 			
-			The filter equations is presented below:
+			The filter equations is presented below \cite{filter_design}
 			\begin{equation}
 				y[n] = \sum_{k=0}^{N-1}x[n-k]G(x) \label{eq:gauss}
 			\end{equation}
 			\begin{itemize}
 				\item N is windows size,
-			\end{itemize}			
+			\end{itemize}	
+			DC components of I and Q branches are calculated using equation \ref{eq:gauss},
+			where $x[n-k]$ is substituted with corresponding I or Q sample.
+			\[
+				I_{mean}[n] = \sum_{k=0}^{N-1}x[n-k]G(x)
+			\]
+			\[
+				Q_{mean}[n] = \sum_{k=0}^{N-1}x[n-k]G(x)
+			\]		
 			Corrected values are calculated as follows:
 			\[
-				I/Q_{corr} = I/Q - I/Q_{gauss},
+			\renewcommand*{\arraystretch}{1.3} 
+			\begin{array}{ll}
+				I_{corr}(n) = I(n) - I_{mean}(n), \\
+				I_{corr}(n) = Q(n) - Q_{mean}(n)
+			\end{array}
 			\]
-						where:
-			\begin{itemize}
-				\item I/Q is recived I/Q sample,
-				\item $I/Q_{gauss}$ is DC offset calculated using Normalized Gauss Filter.
-			\end{itemize}
 			This filter has better performance in frequency domain than Moving Average Filter.
-	\section{Magnitude and Phase Correction}
-		The I/Q imbalance is common problem in RF front-ends that uses analog quadrature down-
+			
+	\section{IQ Mismatch Correction}
+		The IQ imbalance is common problem in RF front-ends that uses analog quadrature down-
 		mixing. The ideal down-converter performs only simple frequency shift. Real down-
 	    converters introduces image interference which may be assumed as constant. But amplifiers
 	    and filters introduces varying with frequency imbalance.
@@ -757,8 +791,7 @@ $UART$
 			\item $\omega$ is tone frequency.
 		\end{itemize}
 	    I and Q components are orthogonal with respect to each other.
-	    
-	    In real case, assuming Single Branch Model receiver output is:
+	    In real case receiver output is:
 		\begin{equation}
 			\renewcommand*{\arraystretch}{1.3} 
 			\begin{array}{ll}
@@ -770,10 +803,10 @@ $UART$
 		\begin{itemize}
 			\item $\alpha$ is magnitude mismatch,
 			\item $\phi$ is phase imbalance,
-			\item $\beta_{I/Q}$ is signal DC offset.
+			\item $\beta_{IQ}$, $\beta_{Q}$ is signal DC offset.
 		\end{itemize}
 		Input of phase correction algorithms is signal with DC offset extracted using algortihms
-		from previews section. Hence the signal model is:
+		from previews section. Hence the signal model is \cite{iqcorr}
 		\begin{equation}
 			\renewcommand*{\arraystretch}{1.3} 
 			\begin{array}{ll}
@@ -787,7 +820,7 @@ $UART$
 			sin\left(\omega t\right))cos\left(\phi \right) + 
 			cos\left(\omega t\right) sin\left(\phi \right)
 		\] 
-		Equation \ref{iq:real} be rewritten in matrix form as:
+		Equation \ref{eq:iqreal} be rewritten in matrix form as:
 		\begin{equation}
 			\begin{bmatrix}
 				I(t)'' \\
@@ -803,7 +836,7 @@ $UART$
 				Q(t)
 			\end{bmatrix} \label{eq:iqrealmat}
 		\end{equation}
-		After multiplying both sides of \ref{eq:iqrelamat} by inversion of parameters matrix following set of exuations
+		After multiplying both sides of \ref{eq:iqreal} by inversion of parameters matrix following set of exuations
 		is obtained:
 		\begin{equation}
 			\begin{bmatrix}
@@ -855,7 +888,7 @@ $UART$
 				Q''(t)
 			\end{bmatrix}\label{eq:iqcorr}
 		\end{equation}
-		The I/Q mismatch correction  can be now applied using \ref{eq:iqcorr} formula.
+		The IQ mismatch correction  can be now applied using \ref{eq:iqcorr} formula.
 	
 \chapter{Hardware Implementation}
 	This chapter explains structure of hardware implemented in Zynq PL section. This includes data flow
@@ -867,7 +900,7 @@ $UART$
 	\begin{itemize}
 		\item \textit{AXI_AD9361} - IP core provided by Analog devices. This block is responsible for
 			interfacing with AD9363 RF transceiver placed on board. 
-		\item \textit{FIRDecimator} - down-sampling block with additional filters to block unwanted
+		\item \textit{FIR Decimator} - down-sampling block with additional filters to block unwanted
 			images created by change of sampling frequency in receive path.
 		\item \textit{FIR Interolator} - up-sampling block with additional filters to block unwanted
 			images created by change of sampling frequency in transmit path.
@@ -888,34 +921,33 @@ $UART$
 	\end{figure}
 	
 	\section{Moving Average Filter}
-		Moving Average Filter w
 	\begin{table}[H]
 		\centering
 		\caption{}
-		\begin{tabular}{|l|l|l|l|}
+		\begin{tabular}{|c|c|c|c|}
 		\hline
 		Clock  & Period & Estimated & Uncertanity \\ \hline
 		100MHz & 10ns   & 8.358     & 1.25        \\ \hline
 		\end{tabular}
-		\caption{Timing estimation of C synthesis of Moving Average Filter.}
+		\caption{Timing estimation of C synthesis for Moving Average Filter.}
 	\end{table}
 	
-	\begin{table}[]
+	\begin{table}[H]
 		\centering
 		\caption{}
-		\begin{tabular}{|l|l|l|l|}
+		\begin{tabular}{|c|c|c|c|}
 		\hline
-		\multicolumn{2}{|l|}{Latency} & \multicolumn{2}{l|}{Interval} \\ \hline
+		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
 			min           & max           & min           & max           \\ \hline
 			1             & 1             & 2             & 2             \\ \hline
 		\end{tabular}
-		\caption{Latency estimation of C synthesis of Moving Average Filter.}
+		\caption{Latency estimation of C synthesis for Moving Average Filter.}
 	\end{table}
 	
-	\begin{table}[]
+	\begin{table}[H]
 		\centering
 		\caption{}
-		\begin{tabular}{|l|l|l|l|}
+		\begin{tabular}{|c|c|c|c|}
 		\hline
 		BRAM\_18K & DSP48E & FF  & LUT \\ \hline
 		2         & 0      & 102 & 418 \\ \hline
@@ -924,9 +956,75 @@ $UART$
 	\end{table}
 	
 	\section{Gaussian Filter}
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		Clock  & Period & Estimated & Uncertanity \\ \hline
+		100MHz & 10ns   & 8.358     & 1.25        \\ \hline
+		\end{tabular}
+		\caption{Timing estimation of C synthesis for Gaussian Filter.}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
+			min           & max           & min           & max           \\ \hline
+			1             & 1             & 2             & 2             \\ \hline
+		\end{tabular}
+		\caption{Latency estimation of C synthesis for Gaussian Filter.}
+	\end{table}
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		BRAM\_18K & DSP48E & FF  & LUT \\ \hline
+		2         & 5      & 599 & 1770\\ \hline
+		\end{tabular}
+		\caption{Resource utilization for Gaussian Filter.}
+	\end{table}
 	\section{I/Q mismatch compensation}
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		Clock  & Period & Estimated & Uncertanity \\ \hline
+		100MHz & 10ns   & 8.429     & 1.25        \\ \hline
+		\end{tabular}
+		\caption{Timing estimation of C synthesis for IQ mismatch compensation.}
+	\end{table}
 	
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
+			min           & max           & min           & max           \\ \hline
+			119           & 119           & 2             & 2             \\ \hline
+		\end{tabular}
+		\caption{Latency estimation of C synthesis for IQ mismatch compensation.}
+	\end{table}
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		BRAM\_18K & DSP48E & FF   & LUT \\ \hline
+		6         & 20     & 6145 & 10412\\ \hline
+		\end{tabular}
+		\caption{Resource utilization for IQ mismatch compensation.}
+	\end{table}
 	
+	DC offset removal algorithms are relatively cheap in terms of resource utilization.
+	Gaussian Filter takes additional DSP48E units. IQ mismatch cimpensation algorithm is
+	the most expensive due to its complexity.
 	
 \chapter{Performance evaluation}
 	This chapter presents results of simulation, hardware implementation and built in
@@ -937,6 +1035,8 @@ $UART$
 		\item multi tone - signal consisting of two different frequencies,
 		\item broadband - signal with band of specified width.
 	\end{itemize}
+	In case of testing real hardware, device is transmitting signal to itself through antennas
+	included with the Adalm Pluto.
 	\vspace{1cm}
 	\section{Simulations}
 		In this section results of the algorithms implemented in the Matlab are
@@ -945,7 +1045,8 @@ $UART$
 		Algorithms were tested in the following conditions:
 		\begin{itemize}
 			\item Amplitude - 1,
-			\item I DC offset - 0.1,
+			\item DC offset in I branch - 0.1,
+			\item Phase mismatch - 3$^\circ$.
 			\item Moving Average Filter Order - 256.
 			\item Gaussian filter $\sigma$ = 5, window size = 30
 		\end{itemize}
@@ -1028,6 +1129,10 @@ $UART$
    		 		for signle tone signal with noise.}}
    		 	\end{figure}
    		 	
+   		 	In both cases unwanted image in $-1kHz$ and DC component were removed.
+   		 	Gaussian Filter introduced some spectral leakage, but compensation was still
+   		 	working correctly. Constellation diagram after mismatch correction is visibly
+   		 	shaper closer to circle than before. 
    	\newpage
    	\subsection*{Multi tone}
    		In this case IQ mismatch compensation with two DC offset removal algorithms are compared for
@@ -1060,6 +1165,11 @@ $UART$
    		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
    		 		for multi tone signal with noise.}}
    		 	\end{figure}
+   		 	
+   		 	Signal image and DC offset were successfully removed by correction algorithms. Again,
+   		 	Gaussian filter introduced some spectral leakage. In this case constellation diagram
+   		 	is composed of two circles each representing different frequency in the signal.
+   		 	
    	\newpage
 	\subsection*{Broadband}
 		In this case IQ mismatch compensation with two DC offset removal algorithms are compared for
@@ -1092,21 +1202,52 @@ $UART$
    		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
    		 		for broadband signal with noise.}}
    		 	\end{figure}
+   		 	
+			Signal image and band from $-1kHz$ to $-0.5kHz$ and DC offset were successfully removed.
+			Constellation diagram shows improvement in signal orthogonality. In this case constellation
+			diagram is a ring which starts at lower band limit and ends at upper band limit.    		 	
+   		 	
    	\newpage	
 	\section{Hardware Implementation}
 		This section contains description of all algorithms implemented in Zynq PL section and its 
 		performance evaluation.
+		All test were performed using IIO Oscilloscope program.
+		Transmit and receive path are configured as follows:
+		\begin{itemize}
+			\item sampling rate - $30.719998$ MSPS,
+			\item bandwidth - $18MHz$.,
+			\item TX LO frequency - $2799.999998$ MHz,
+			\item RX LO frequency - $2799.999998$ MHz.
+		\end{itemize}
+		and in following conditions:
+		\begin{itemize}
+			\item Moving Average Filter Order - 256.
+			\item Gaussian filter $\sigma$ = 5, window size = 30
+			\item Amplitude - 1,
+			\item DC offset in I branch - 0.1,
+			\item Phase mismatch - 3$^\circ$.
+		\end{itemize}
+	\newpage
 	 \subsection*{DC offset removal}
-	 
-	 	\subsubsection*{Moving Average Filter}
-	 	\begin{figure}[!htb]
+	 	In this case built in DC offset correction algorithm is tested for signle tone
+		signal of frequency $f=1kHz$.
+	 	\begin{figure}[H]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_dc.png}
-   		 	\caption{\textit{Received signal spectrum with DC offset removal implemented in Zynq PL
-   		 	section.}}
+   		 	\caption{\textit{Received signal spectrum with Moving Average Filter DC offset removal
+   		 	implemented in Zynq PL section.}}
+   		\end{figure}
+   		
+	 	\begin{figure}[H]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/my_dc_gauss.png}
+   		 	\caption{\textit{Received signal spectrum with Gaussian Filter DC offset removal
+   		 	implemented in Zynq PL section.}}
    		\end{figure}
    		
 		\subsection*{Single Tone Signal}
+		In this case implemented mismatch compensation is tested for
+		single tone signal with frequency $f=1kHz$.
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_single_mav.png}
@@ -1122,6 +1263,8 @@ $UART$
    		\end{figure}	
    		
    		\subsection*{Multiton Signal}
+   		In this case implemented mismatch compensation is tested for
+		multi tone signal with frequencies $f1=1kHz$ and $f2=0.5kHz$.
   		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_multi_mav.png}
@@ -1135,7 +1278,9 @@ $UART$
    		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
    		 	Gaussian Filter.}}
    		\end{figure}		
-		\subsection*{Broadband Signal}	
+		\subsection*{Broadband Signal}
+		In this case implemented mismatch compensation is tested for
+		broadband signal in frequency range from $f_s=0.5kHz$ to $f_e=1kHz$.
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_band_mav.png}
@@ -1149,14 +1294,15 @@ $UART$
    		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
    		 	Gaussian Filter.}}
    		\end{figure}
-	\newpage
+   		
+   		\newpage
+		In all cases DC offset was successfully removed. Gaussian filter introduce additional spectral
+		leakage close to the tone frequencies. Algorithms perform the worst in multi tone signal case.
+		For single tone and broad band images are successfully reduced to almost level of the noise.	
+   		
 	\section{On Chip Algorithm}
 		This section contains performance evaluation of compensation algorithms built in AD9363.
-		\begin{itemize}
-			\item Moving Average Filter Order - 256.
-			\item Gaussian filter $\sigma$ = 5, window size = 30
-		\end{itemize}
-	    \vspace{1cm}	
+	
 		All test were performed using IIO Oscilloscope program.
 		Transmit and receive path are configured as follows:
 		\begin{itemize}
@@ -1166,34 +1312,28 @@ $UART$
 			\item RX LO frequency - $2799.999998$ MHz.
 		\end{itemize}
 
-	    \vspace{1cm}
+		\begin{itemize}
+			\item Moving Average Filter Order - 256.
+			\item Gaussian filter $\sigma$ = 5, window size = 30
+			\item Amplitude - 1,
+			\item DC offset in I branch - 0.1,
+			\item Phase mismatch - 3$^\circ$.
+		\end{itemize}
+	    \newpage
 		\subsection*{DC offset removal}
-			In this case DC offset removal algorithm implemented in chip is tested.
-			Test were performed for the single tone signal with the following parameters:
-			\begin{itemize}
-				\item sampling frequency - $40kHz$,
-				\item signal frequency - $1kHz$,
-				\item signal amplitude - 1,
-				\item DC offset in I branch - 0.1
-			\end{itemize}
-			\newpage
+	 	In this case built in DC offset correction algorithm is tested for signle tone
+		signal of frequency $f=1kHz$.				
    		 	\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/real_dcoff.png}
    		 		\caption{\textit{Received signal spectrum without DC offset removal.}}
    		 	\end{figure}
+   		 	\vspace{0.5cm}
    		 	\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/real_dcon.png}
    		 		\caption{\textit{Received signal spectrum with AD9363 built in DC offset removal.}}
    		 	\end{figure}
-			dc off   		 	
-   		 	fund - 13.17
-   		 	dc on - 37.06
-   		 	img - 68.21
-   		 	fund -13.71 dbfs
-   		 	dc - 84.01
-   		 	img - 70.50
    		\newpage
 		\subsection*{Single Tone Signal}
 		In this case built in IQ mismatch compensation and DC offset removal algorithms are
@@ -1204,17 +1344,12 @@ $UART$
    				\includegraphics[width=\textwidth]{plots/real_single_off.png}
    		 		\caption{\textit{Received single tone signal spectrum without IQ mismatch compensation.}}
    		 	\end{figure}
-   		 	fund - 13.10
-   		 	dc on - 40.50
-   		 	img - 44.50
+			\vspace{0.5cm}
    		 	\begin{figure}[H]
     			\centering
    				\includegraphics[width=\textwidth]{plots/real_single_on.png}
    		 		\caption{\textit{Received single tone signal spectrum with IQ mismatch compensation.}}
    		 	\end{figure}
-   		 	fund - 12.94
-   		 	dc on - 75.08
-   		 	img - 92.49
    		\newpage
    	\subsection*{Multiton Signal}
    		In this case built in IQ mismatch compensation and DC offset removal algorithms are
@@ -1224,6 +1359,7 @@ $UART$
    				\includegraphics[width=\textwidth]{plots/real_multi_off.png}
    		 		\caption{\textit{Received multi tone signal spectrum without IQ mismatch compensation.}}
    		 	\end{figure}
+   		 	\vspace{0.5cm}
    		 	\begin{figure}[H]
     			\centering
    				\includegraphics[width=\textwidth]{plots/real_multi_on.png}
@@ -1238,30 +1374,136 @@ $UART$
    				\includegraphics[width=\textwidth]{plots/real_band_off.png}
    		 		\caption{\textit{Received broadband signal spectrum without IQ mismatch compensation.}}
    		 	\end{figure}
+   		 	\vspace{0.5cm}
    		 	\begin{figure}[H]
     			\centering
    				\includegraphics[width=\textwidth]{plots/real_band_on.png}
    		 		\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation.}}
-   		 	\end{figure}	 
+   		 	\end{figure}
+   		 	\newpage
+   		 	In all cases DC offset component was successfully removed.  		 	
+			For multi tone singal test case markers P0 and P1 represents $1kHz$ and $0.5kHz$ 
+			tons in the signal. P3 and P4 are images
+   		 	of P0 and P1. P2 marker is DC component in the signal. In this case built in algorithms
+   		    performance was the worst. Image fringes were reduced by only 10dB. For broadband signal
+   		    image was reduced to the level of noise.
+   		    
 \chapter{ Conclusions}
+	Performance of presented algorithms was very satisfying. In all cases test cases DC component was
+	successfully removed form the signal. Gaussian filter takes more resources than Moving Average
+	Filter, but requires almost 9 times lower number of samples to operate (256 samples in case of 
+	Moving Average Filter and 30 for Gaussian Filter). Gaussian filter introduced additional spectral
+	leakage close to signal tone frequency. Gaussian Filter worked better for multi tone signal
+	than Moving Average but was worse in case of broadband signal.
+	In all cases unwanted images were significantly reduced.
+	Constellation diagram shapes are closer to circle which means orthogonality of the I and Q component.
+	In case of single tone signal constellation diagram changes it shape form ellipse to circle. For
+	multi tone two circles are present. One for lower and one for higher frequency tone. Broadband signal
+	constellation diagram is a ring with lower bound at lowest frequency in the band ad upper bound in
+	the highest. Introduction of the noise confirmed that algorithms are able to work in real case. 
+	However performance of both implemented and built in algorithm for multi tone
+	signal case was the worst. Performance of algorithms implemented in Zynq PL section was better than
+	built in AD9363 transceiver for single and multi tone, but worse for broadband signal.	
+	\\
+	
+	
+	Algorithms tested in this thesis shows that it is possible to significantly improve RF signal
+	quality using both implementation approaches: in software and in hardware. However hardware
+	approach allowed to perform effective IQ correction in real time. Devices such as SoC shows
+	potential in field of SDR, thanks to mixed architecture of CPU and FPGA.
 
 
 \addcontentsline{toc}{chapter}{Bibliography} %utworzenie w spisie treści pozycji Bibliografia
 \bibliography{bibliografia} % wstawia bibliografię korzystając z pliku bibliografia.bib - dotyczy BibTeXa, jeżeli nie korzystamy z BibTeXa należy użyć otoczenia thebibliography
 
 \begin{thebibliography}{9}
-\bibitem{highSpeedDesign} 
-Stephen H. Hal, Garrett W. Hall, and James A. McCall. 
-\textit{High-Speed Digital System Design - A Handbook of Interconnects Theory and Design Practices}.
-New York, Chichester, Weinheim, Brisbane, Singapore, Toronto, 2000.
+\bibitem{lyo}
+R.G Lyons
+\textit{„Wprowadzenie do cyfrowego przetwarzania sygnałów, WKiŁ, 1999}
 
-\bibitem{dddd}
-\textit{https://wiki.analog.com/_detail/resources/tools-software/linux-software/libiio_diagram.png?id=resources\%3Atools-software\%3Alinux-software\%3Alibiio}
-
-\bibitem
-SS.W. Ellingson
+\bibitem{iqcorr} 
+S.W. Ellingson. 
 \textit{Correcting I-Q Imbalance in Direct Conversion
-Receivers}
+Receivers, February 10, 2003}.
+
+\bibitem{iq_model}
+Lauri Anttila,
+Mikko Valkama,
+Markku Renfors
+\textit{Frequency-Selective I/Q Mismatch Calibration of Wideband Direct-Conversion Transmitters, https://ieeexplore.ieee.org/abstract/document/4476448}
+
+\bibitem{iq_imball}
+Guanbin Xing, Manyuan Shen, Hui Liu.
+\textit{Frequency Offset and I/Q Imbalance Compensation for Direct-Conversion Receivers. IEEE TRANSACTIONS ON WIRELESS COMMUNICATIONS, VOL. 4, NO. 2, MARCH 2005.}
+
+\bibitem{filter_design}
+T. W. Parks,
+C. Sidney Burrus
+\textit{Digital Signal Processing and
+Digital Filter Design, Wiley-Interscience; 1 edition (August 1987)}
+\bibitem{comp}
+François Horlin, André Bourdoux
+\textit{Digital Compensation for
+Analog Front-Ends. England: 2008 John Wiley & Sons, Ltd}
+
+
+\bibitem{mav}
+Steven W. Smith, Ph.D.
+\textit{The Scientist and Engineer's Guide to
+Digital Signal Processing. https://www.analog.com/media/en/technical-documentation/dsp-book/dsp_book_Ch15.pdf}
+
+\bibitem{zynq_book}
+Louise H. Crockett
+Ross A. Elliot
+Martin A. Enderwitz
+Robert W. Stewart
+\textit{The Zynq Book Embedded Processing with the ARM® Cortex®-A9 on the Xilinx®
+Zynq®-7000 All Programmable SoC, Department of Electronic and Electrical Engineering
+University of Strathclyde
+Glasgow, Scotland, UK
+1st Edition}
+
+\bibitem{hls}
+Xilinx Inc.,
+\textit{Vivado Design Suite User Guide - High-Level Synthesis. https://www.xilinx.com/support/documentation/sw_manuals/xilinx2017_4/ug902-vivado-high-level-synthesis.pdf}
+
+\bibitem{hls2}
+Xilinx Inc.,
+\textit{Xilinx Vivado High Level Synthesis: Case studies, https://digital-library.theiet.org/content/conferences/10.1049/cp.2014.0713}
+
+\bibitem{zynq_ds}
+Xilinx Inc.,
+\textit{Zynq-7000 SoC Data Sheet, https://www.xilinx.com/support/documentatio \\
+n/data_sheets/ds190-Zynq-7000-Overview.pdf}
+
+\bibitem{zynq_manual}
+Xilinx Inc.,
+\textit{Zynq-7000 SoC Technical Reference Manual, https://www.xilinx.com/support/documentation/user_guides/ug585-Zynq-7000-TRM.pdff}
+\bibitem{ad9363}
+Analog Devices Inc.,
+\textit{AD9363 Datasheet, https://www.analog.com/media/en/technical-documentation/data-sheets/AD9363.pdf}
+
+\bibitem{zynq_guide}
+Xilinx Inc.,
+\textit{Zynq-7000 All
+Programmable SoC
+Software Developers Guide, https://www.xilinx.com/support/documentation/user_guides/ug821-zynq-7000-swdev.pdf}
+
+\bibitem{pluto_photo}
+\textit{https://www.analog.com/-/media/analog/en/evaluation-board-images/images/adalm-pluto-web.gif?h=270&thn=1&hash=A9C5189745767A0191C4536 \\
+A230C498745F14619}
+
+\bibitem{pluto_schematic}
+\textit{https://www.analog.com/-/media/analog/en/evaluation-board-images/images/adalm-pluto_medium_block_diagram.png?h=270&hash=1A0512F2EC \\
+9F8DAA40A1C954A2394FE4E8BA34B3}
+
+\bibitem{ad9363_diag}
+\textit{http://analogdevicesinc.github.io/libad9361-iio/doc/AD9361.svg}
+
+\bibitem{zynq_diag}
+\textit{https://www.cnx-software.com/wp-content/uploads/2012/03/xilinx_zynq-7000_EPP_block_diagram_large.jpg}
+\bibitem{libioo}
+\textit{https://wiki.analog.com/_detail/resources/tools-software/linux-software/libiio_diagram.png?id=resources\%3Atools-software\%3Alinux-software\%3Alibiio}
 \end{thebibliography}
 %opcjonalnie może się tu pojawić spis rysunków i tabel
 % \listoffigures
