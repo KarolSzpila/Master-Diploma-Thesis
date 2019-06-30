@@ -1,28 +1,31 @@
 clear all;
 close all;
 
-Fs = 200;            % Sampling frequency                    
+Fs = 400;            % Sampling frequency                    
 T = 1/Fs;             % Sampling period       
-L = 1000;             % Length of signal
+L = 1000;            % Length of signal
 t = (0:L-1)*T;        % Time vector
+f = 100;
+%I = chirp(t,10,t(end),50);
+%Q = chirp(t,10,t(end),50,'linear',-90 + 20);
 
-I = chirp(t(1),10,t(end),50);
+f1 = 100;
 
-I = I + 0.01*randn(1,length(I));
-Q = Q + 0.01*randn(1,length(Q));
+offset = 0.1;
+fi = pi/60;
 
-%[I, Q] = iq_corr(I', Q');
+I = cos(2*pi*f1*t) + cos(2*pi*t*f2) + offset;
+Q = sin(2*pi*f1*t + fi) + sin(2*pi*f2*t + fi);
+
+%I = I + 0.01*randn(1,length(I));
+%Q = Q + 0.01*randn(1,length(Q));
+
+[I, Q] = iq_corr_gauss(I', Q',5,50);
+
 S = complex(I,Q);
 
-pd = phdiffmeasure(Q,I) * 180/pi - 90;
-
+%pd = phdiffmeasure(Q,I) * 180/pi - 90;
 Y = fftshift(fft(S)/length(S));
-
-figure(2)
-hold on;
-grid on;
-grid minor;
-
 
 figure(1)
 hold on;

@@ -15,7 +15,7 @@ t=linspace(0,1,length(I));
 t=linspace(0,1,length(SignalGen));
 I = cos(2*pi*1000*t);
 Q = sin(2*pi*1000*t + pi/12) + 0.1;
-[Icorr, Qcorr] = iq_corr(I', Q');
+[Icorr, Qcorr] = iq_corr_mav(I', Q',256);
 
 figure(1)
 subplot(2,1,1)
