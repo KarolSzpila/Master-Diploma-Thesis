@@ -1045,7 +1045,6 @@ $USB$  & Upper Side Band \\
 		\begin{itemize}
 			\item Amplitude - 1,
 			\item DC offset in I branch - 0.1,
-			\item Phase mismatch - 3$^\circ$.
 			\item Moving Average Filter Order - 256.
 			\item Gaussian filter $\sigma$ = 5, window size = 30
 		\end{itemize}
@@ -1053,7 +1052,13 @@ $USB$  & Upper Side Band \\
 		In this section simulations of DC offset correction algorithms are compared for signle tone
 		signal of frequency $f=1kHz$ with and without additional noise.
 
-		\subsubsection*{Scenario 1: Noiseless signal}
+		\subsubsection*{Scenario 1}
+		In this scenario following distortions are added:
+		\begin{itemize}
+			\item No noise introduced
+			\item Phase mismatch - 3$^\circ$.
+		\end{itemize}
+
 			\vspace{1cm}	
 			\begin{figure}[H]
     			\centering
@@ -1097,6 +1102,11 @@ $USB$  & Upper Side Band \\
 		In this case IQ mismatch compensation with two DC offset removal algorithms are compared for
 		single tone signal with frequency $f=1kHz$ with and without additional noise.
 		\subsubsection*{Scenario 1: Noiseless signal}
+			In this scenario following distortions are added:
+			\begin{itemize}
+				\item No noise introduced
+				\item Phase mismatch - 3$^\circ$.
+			\end{itemize}
 			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/single_f.png}
@@ -1112,31 +1122,110 @@ $USB$  & Upper Side Band \\
 			\end{figure}
 		\newpage
 		\newpage
-		\subsubsection*{Scenario 2: Noisy signal}
-			\vspace{1cm}
+		\subsubsection*{Scenario 2:}
+			In this scenario following distortions are added:
+			\begin{itemize}
+				\item Noise at the -50dB introduced
+				\item Phase mismatch - 3$^\circ$.
+			\end{itemize}
 			\begin{figure}[H]
     			\centering
    				\includegraphics[width=\textwidth]{plots/single_nf.png}
    		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms 
    		 		for signle tone signal with noise.}}
    		 	\end{figure}	
-   		 	\vspace{2cm}
    		 	\begin{figure}[H]
     			\centering
    				\includegraphics[width=\textwidth]{plots/single_nc.png}
    		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
    		 		for signle tone signal with noise.}}
    		 	\end{figure}
+				\begin{table}[H]
+				\centering
+				\caption{}
+				\label{tab:my-table}
+				\begin{tabular}{|c|c|c|c|}
+				\hline
+																				   & Input signal & \begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular} & \begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular} \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -87          & -89.9437                                                        & -90.0583                                                  \\ \hline
+				Image {[}dB{]}                                                     & -34.95       & Noise level                                                     & Noise level                                               \\ \hline
+				\end{tabular}
+				\end{table}
    		 	
-   		 	In both cases unwanted image in $-1kHz$ and DC component were removed.
-   		 	Gaussian Filter introduced some spectral leakage, but compensation was still
-   		 	working correctly. Constellation diagram after mismatch correction is visibly
-   		 	shaper closer to circle than before. 
+   		 \subsubsection*{Scenario 3:}
+   		 In this scenario following distortions are added:
+			\begin{itemize}
+				\item Noise at the -40dB introduced
+				\item Phase mismatch - 9$^\circ$.
+			\end{itemize}
+			
+			\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.95\textwidth]{plots/single_nf2.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms 
+   		 		for signle tone signal with noise.}}
+   		 	\end{figure}	
+   		 	
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.95\textwidth]{plots/single_nc2.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for signle tone signal with noise.}}
+   		 	\end{figure}
+   		 		\begin{table}[H]
+				\centering
+				\caption{}
+				\label{tab:my-table}
+				\begin{tabular}{|c|c|c|c|}
+				\hline
+																				   & Input signal & \begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular} & \begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular} \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -81          & -87.2434                                                        & -86.1984                                                  \\ \hline
+				Image {[}dB{]}                                                     & -22.68       & -32.58                                                          & -36.81                                                    \\ \hline
+				\end{tabular}
+				\end{table}
+				
+				
+   		 \subsubsection*{Scenario 4:}
+   		 In this scenario following distortions are added:
+			\begin{itemize}
+				\item Noise at the -30dB introduced
+				\item Phase mismatch - 18$^\circ$.
+			\end{itemize}
+			
+			\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.93\textwidth]{plots/single_nf3.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms 
+   		 		for signle tone signal with noise.}}
+   		 	\end{figure}	
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.93\textwidth]{plots/single_nc3.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for signle tone signal with noise.}}
+   		 	\end{figure}
+   		 	
+   		 	\begin{table}[H]
+				\centering
+				\caption{}
+				\label{tab:my-table}
+				\begin{tabular}{|c|c|c|c|}
+				\hline
+																				   & Input signal & \begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular} & \begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular} \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -72          & -79.8820                                                        & -80.2054                                                  \\ \hline
+				Image {[}dB{]}                                                     & -16.06       & -24.39                                                          & -27.44                                                    \\ \hline
+				\end{tabular}
+				\end{table}
    	\newpage
    	\subsection*{Multi tone}
    		In this case IQ mismatch compensation with two DC offset removal algorithms are compared for
 		multi tone signal with frequencies $f1=1kHz$ and $f2=0.5kHz$ with and without additional noise.
-		\subsubsection*{Scenario 1: Noiseless signal}\
+		\subsubsection*{Scenario 1: Noiseless signal}
+			In this scenario following distortions are added:
+			\begin{itemize}
+				\item No noise introduced
+				\item Phase mismatch - 3$^\circ$.
+			\end{itemize}
 			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/multi_f.png}
@@ -1148,33 +1237,112 @@ $USB$  & Upper Side Band \\
    				\includegraphics[width=\textwidth]{plots/multi_c.png}
    		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms
    		 		for multi tone.}}
-   		 	\end{figure}		
-		\subsubsection*{Scenario 1: Noisy signal}
-			\vspace{1cm}
+   		 	\end{figure}
+   		 	
+		\subsubsection*{Scenario 2: }
+			In this scenario following distortions are added:
+			\begin{itemize}
+				\item Noise at the -70dB introduced
+				\item Phase mismatch - 3$^\circ$.
+			\end{itemize}
 			\begin{figure}[H]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/multi_nf.png}
+   				\includegraphics[width=0.9\textwidth]{plots/multi_nf.png}
    		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms for 
    		 		multi tone signal with noise.}}
    		 	\end{figure}
-   		 	\vspace{2cm}	
    		 	\begin{figure}[H]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/multi_nc.png}
+   				\includegraphics[width=0.9\textwidth]{plots/multi_nc.png}
    		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
    		 		for multi tone signal with noise.}}
    		 	\end{figure}
    		 	
-   		 	Signal image and DC offset were successfully removed by correction algorithms. Again,
-   		 	Gaussian filter introduced some spectral leakage. In this case constellation diagram
-   		 	is composed of two circles each representing different frequency in the signal.
+			\begin{table}[H]
+				\caption{}
+				\label{tab:my-table}
+				\begin{tabular}{|c|c|c|c|c|c|c|}
+				\hline
+																				   & \multicolumn{2}{c|}{Input signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular}} \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & \multicolumn{2}{c|}{-87}          & \multicolumn{2}{c|}{-90.0380}                                                        & \multicolumn{2}{c|}{-90.0004}                                                  \\ \hline
+				\multirow{2}{*}{Image {[}db{]}}                                    & -1kHz           & -0.5kHz         & -1kHz                                     & -0.5kHz                                  & -1kHz                                  & -0.5kHz                               \\ \cline{2-7} 
+																				   & -38.13          & -38.19          & Noise level                               & Noise level                              & Noise level                            & Noise level                           \\ \hline
+				\end{tabular}
+				\end{table}
+   	
+   		\subsubsection*{Scenario 3: }
+			In this scenario following distortions are added:
+			\begin{itemize}
+				\item Noise at the -40dB introduced
+				\item Phase mismatch - 9$^\circ$.
+			\end{itemize}
+				\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.9\textwidth]{plots/multi_nf2.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms for 
+   		 		multi tone signal with noise.}}
+   		 	\end{figure}
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.9\textwidth]{plots/multi_nc2.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for multi tone signal with noise.}}
+   		 	\end{figure}
+							\begin{table}[H]
+				\caption{}
+				\label{tab:my-table}
+				\begin{tabular}{|c|c|c|c|c|c|c|}
+				\hline
+																				   & \multicolumn{2}{c|}{Input signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular}} \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & \multicolumn{2}{c|}{-81}          & \multicolumn{2}{c|}{-88.3068}                                                        & \multicolumn{2}{c|}{-88.2219}                                                  \\ \hline
+				\multirow{2}{*}{Image {[}db{]}}                                    & -1kHz           & -0.5kHz         & -1kHz                                     & -0.5kHz                                  & -1kHz                                  & -0.5kHz                               \\ \cline{2-7} 
+																				   & -23.66          & -23.35          & Noise level                               & Noise level                              & Noise level                            & Noise level                           \\ \hline
+				\end{tabular}
+				\end{table}
+				 	
+   		\subsubsection*{Scenario 4: }
+			In this scenario following distortions are added:
+			\begin{itemize}
+				\item Noise at the -30dB introduced
+				\item Phase mismatch - 18$^\circ$.
+			\end{itemize}
+				\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.9\textwidth]{plots/multi_nf3.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms for 
+   		 		multi tone signal with noise.}}
+   		 	\end{figure}
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.9\textwidth]{plots/multi_nc3.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for multi tone signal with noise.}}
+   		 	\end{figure}
    		 	
+				\begin{table}[H]
+				\centering
+				\caption{}
+				\label{tab:my-table}
+				\begin{tabular}{|c|c|c|c|c|c|c|}
+				\hline
+																				   & \multicolumn{2}{c|}{Input signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular}} \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & \multicolumn{2}{c|}{-72}          & \multicolumn{2}{c|}{-81.5392}                                                        & \multicolumn{2}{c|}{-82.0654}                                                  \\ \hline
+				\multirow{2}{*}{Image {[}db{]}}                                    & -1kHz           & -0.5kHz         & -1kHz                                    & -0.5kHz                                   & -1kHz                                 & -0.5kHz                                \\ \cline{2-7} 
+																				   & -16.46          & -16.72          & -28.53                                   & -28.97                                    & -29.01                                & -29.51                                 \\ \hline
+				\end{tabular}
+				\end{table}
+				
    	\newpage
 	\subsection*{Broadband}
 		In this case IQ mismatch compensation with two DC offset removal algorithms are compared for
 		broadband signal in frequency range from $f_s=0.5kHz$ to $f_e=1kHz$ with and without additional
 		noise.
 		\subsubsection*{Scenario 1: Noiseless signal}
+			In this scenario following distortions are added:
+			\begin{itemize}
+				\item No noise introduced
+				\item Phase mismatch - 3$^\circ$.
+			\end{itemize}
 			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/band_f.png}
@@ -1188,7 +1356,11 @@ $USB$  & Upper Side Band \\
    		 		for broadband signal.}}
    		 	\end{figure}
    		\newpage
-		\subsubsection*{Scenario 1: Noisy signal}
+		\subsubsection*{Scenario 2:}
+			\begin{itemize}
+				\item Noise at the -70dB introduced
+				\item Phase mismatch - 3$^\circ$.
+			\end{itemize}
 			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/band_nf.png}
@@ -1202,11 +1374,85 @@ $USB$  & Upper Side Band \\
    		 		for broadband signal with noise.}}
    		 	\end{figure}
    		 	
-			Signal image and band from $-1kHz$ to $-0.5kHz$ and DC offset were successfully removed.
-			Constellation diagram shows improvement in signal orthogonality. In this case constellation
-			diagram is a ring which starts at lower band limit and ends at upper band limit.    		 	
+			\begin{table}[H]
+\centering
+\caption{}
+\label{tab:my-table}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+                                                                          & \multicolumn{2}{c|}{Input signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular}} \\ \hline
+\begin{tabular}[c]{@{}c@{}}Lower and Upper\\ frequency bound\end{tabular} & 0.5kHz          & 1kHz            & 0.5kHz                                    & 1kHz                                     & 0.5kHz                                 & 1kHz                                  \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular}        & -87             & -87             & -96.35                                    & -92.25                                   & -90.45                                 & -90.42                                \\ \hline
+\multirow{2}{*}{Image {[}db{]}}                                           & -1kHz           & -0.5kHz         & -1kHz                                     & -0.5kHz                                  & -1kHz                                  & -0.5kHz                               \\ \cline{2-7} 
+                                                                          & -45.12          & -48.72          & Noise level                               & Noise level                              & Noise level                            & Noise level                           \\ \hline
+\end{tabular}
+\end{table}
+			   		 	
+   		 \subsubsection*{Scenario 3:}
+			\begin{itemize}
+				\item Noise at the -40dB introduced
+				\item Phase mismatch - 9$^\circ$.
+			\end{itemize}
+
+			\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=0.9\textwidth]{plots/band_nf2.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms for
+   		 		broadband signal with noise.}}
+   		 	\end{figure}	
+   		 	\begin{figure}[!htb]
+    			\centering
+   				\includegraphics[width=0.9\textwidth]{plots/band_nc2.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for broadband signal with noise.}}
+   		 	\end{figure}
+   		 	\begin{table}[H]
+\centering
+\caption{}
+\label{tab:my-table}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+                                                                          & \multicolumn{2}{c|}{Input signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular}} \\ \hline
+\begin{tabular}[c]{@{}c@{}}Lower and Upper\\ frequency bound\end{tabular} & 0.5kHz          & 1kHz            & 0.5kHz                                    & 1kHz                                     & 0.5kHz                                 & 1kHz                                  \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular}        & -81             & -81             & -72.38                                    & -76.58                                   & -88.02                                 & -85.56                                \\ \hline
+\multirow{2}{*}{Image {[}db{]}}                                           & -1kHz           & -0.5kHz         & -1kHz                                     & -0.5kHz                                  & -1kHz                                  & -0.5kHz                               \\ \cline{2-7} 
+                                                                          & -34.12          & -35.51          & Noise level                               & Noise level                              & Noise level                            & Noise level                           \\ \hline
+\end{tabular}
+\end{table}
+		 \subsubsection*{Scenario 4:}
+			\begin{itemize}
+				\item Noise at the -30dB introduced
+				\item Phase mismatch - 18$^\circ$.
+			\end{itemize}
+			
+			\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.9\textwidth]{plots/band_nf3.png}
+   		 		\caption{\textit{Comparison of spectrum for IQ mismatch compensation algorithms for
+   		 		broadband signal with noise.}}
+   		 	\end{figure}	
+   		 	\begin{figure}[H]
+    			\centering
+   				\includegraphics[width=0.9\textwidth]{plots/band_nc3.png}
+   		 		\caption{\textit{Comparison of constellations for IQ mismatch compensation algorithms 
+   		 		for broadband signal with noise.}}
+   		 	\end{figure}
    		 	
-   	\newpage	
+   		 	\begin{table}[H]
+\centering
+\caption{}
+\label{tab:my-table}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+                                                                          & \multicolumn{2}{c|}{Input signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular}} \\ \hline
+\begin{tabular}[c]{@{}c@{}}Lower and Upper\\ frequency bound\end{tabular} & 0.5kHz          & 1kHz            & 0.5kHz                                   & 1kHz                                      & 0.5kHz                                & 1kHz                                   \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular}        & -72             & -72             & -62.52                                   & -65.12                                    & -71.24                                & -73.11                                 \\ \hline
+\multirow{2}{*}{Image {[}db{]}}                                           & -1kHz           & -0.5kHz         & -1kHz                                    & -0.5kHz                                   & -1kHz                                 & -0.5kHz                                \\ \cline{2-7} 
+                                                                          & -28.36          & -30.51          & -32.16                                   & -33.01                                    & -34.51                                & -33.92                                 \\ \hline
+\end{tabular}
+\end{table}
+   	\newpage
+   	
 	\section{Hardware Implementation}
 		This section contains description of all algorithms implemented in Zynq PL section and its 
 		performance evaluation.
@@ -1422,7 +1668,7 @@ R.G Lyons
 
 \bibitem{mix}
 Li, Richard Chi Hsi
-\textit{RF Circuit Design, Hoboken, NJ, USA: John Wiley & Sons, Inc.}
+\textit{RF Circuit Design, Hoboken, NJ, USA: John Wiley \& Sons, Inc.}
 
 \bibitem{iqcorr} 
 S.W. Ellingson. 
@@ -1441,7 +1687,7 @@ Guanbin Xing, Manyuan Shen, Hui Liu.
 
 \bibitem{sdr}
 Hüseyin Arslan, Joseph Mitola III
-\textit{Cognitive radio, software‐defined radio, and adaptive wireless systems, 2007 John Wiley & Sons, Ltd.}
+\textit{Cognitive radio, software‐defined radio, and adaptive wireless systems, 2007 John Wiley \& Sons, Ltd.}
 
 \bibitem{filter_design}
 T. W. Parks,
@@ -1451,7 +1697,7 @@ Digital Filter Design, Wiley-Interscience; 1 edition (August 1987)}
 \bibitem{comp}
 François Horlin, André Bourdoux
 \textit{Digital Compensation for
-Analog Front-Ends. England: 2008 John Wiley & Sons, Ltd}
+Analog Front-Ends. England: 2008 John Wiley \& Sons, Ltd}
 
 
 \bibitem{mav}
@@ -1497,11 +1743,11 @@ Programmable SoC
 Software Developers Guide, https://www.xilinx.com/support/documentation/user_guides/ug821-zynq-7000-swdev.pdf}
 
 \bibitem{pluto_photo}
-\textit{https://www.analog.com/-/media/analog/en/evaluation-board-images/images/adalm-pluto-web.gif?h=270&thn=1&hash=A9C5189745767A0191C4536 \\
+\textit{https://www.analog.com/-/media/analog/en/evaluation-board-images/images/adalm-pluto-web.gif?h=270\&thn=1\&hash=A9C5189745767A0191C4536 \\
 A230C498745F14619}
 
 \bibitem{pluto_schematic}
-\textit{https://www.analog.com/-/media/analog/en/evaluation-board-images/images/adalm-pluto_medium_block_diagram.png?h=270&hash=1A0512F2EC \\
+\textit{https://www.analog.com/-/media/analog/en/evaluation-board-images/images/adalm-pluto_medium_block_diagram.png?h=270\&hash=1A0512F2EC \\
 9F8DAA40A1C954A2394FE4E8BA34B3}
 
 \bibitem{ad9363_diag}
