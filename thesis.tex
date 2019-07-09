@@ -66,7 +66,7 @@
 \engtitle{Problems of software implementation of SDR radio in programmable logic structures}
 \author{Karol Szpila}
 \supervisor{\vfil Ph.D., D.Sc. Grzegorz Budzyń\\
-\\ Institute of Telecommunications, Teleinformatics and Acoustics (I-28)}
+\\ W04/K4}
 %\guardian{dr hab. inż. Imię Nazwisko Prof. PWr, I-6} %nie używać jeśli opiekun jest tą samą osobą co prowadzący pracę
 
 %\date{2008} %standardowo u dołu strony tytułowej umieszczany jest bieżący rok, to polecenie pozwala wstawić dowolny rok
@@ -918,8 +918,21 @@ $USB$  & Upper Side Band \\
     	\caption{\textit{Block diagram of the PS logic structure.}}
     	\label{fig:polarplot}
 	\end{figure}
-	
+
+	\newpage
+		All algorithms were first implemented to check correctness of operation and then optimized to
+		minimize delay and clock cycles required to generate next output value.
+		Vivado HLS offers set of directives for C synthesis to optimize generated RTL.
+		Such commands are called
+		\textit{pragmas}.  All algorithms are taking new sample each clock cycle and based on it
+		calculating next output. For such case pragma \textit{HLS PIPELINE} is best solution to
+		reduce interval and latency.
+		\cite{hls_optimize}.
+		Pipeline pragma reduces the initiation interval by concurrent execution of
+		unrelated operations within functions or loops.
+		
 	\section{Moving Average Filter}
+
 	\begin{table}[H]
 		\centering
 		\caption{}
@@ -938,7 +951,7 @@ $USB$  & Upper Side Band \\
 		\hline
 		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
 			min           & max           & min           & max           \\ \hline
-			1             & 1             & 2             & 2             \\ \hline
+			9             & 9             & 9             & 9             \\ \hline
 		\end{tabular}
 		\caption{Latency estimation of C synthesis for Moving Average Filter.}
 	\end{table}
@@ -948,10 +961,33 @@ $USB$  & Upper Side Band \\
 		\caption{}
 		\begin{tabular}{|c|c|c|c|}
 		\hline
+		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
+			min           & max           & min           & max           \\ \hline
+			1             & 1             & 2             & 2             \\ \hline
+		\end{tabular}
+		\caption{Latency estimation of C synthesis for Moving Average Filter with optimization.}
+	\end{table}
+
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
 		BRAM\_18K & DSP48E & FF  & LUT \\ \hline
-		2         & 0      & 102 & 418 \\ \hline
+		2         & 0      & 982 & 2765 \\ \hline
 		\end{tabular}
 		\caption{Resource utilization for Moving Average Filter.}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		BRAM\_18K & DSP48E & FF  & LUT \\ \hline
+		2         & 0      & 625 & 2209 \\ \hline
+		\end{tabular}
+		\caption{Resource utilization for Moving Average Filter with optimization.}
 	\end{table}
 	
 	\section{Gaussian Filter}
@@ -973,21 +1009,45 @@ $USB$  & Upper Side Band \\
 		\hline
 		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
 			min           & max           & min           & max           \\ \hline
-			1             & 1             & 2             & 2             \\ \hline
+			9             & 549             & 9             & 549             \\ \hline
 		\end{tabular}
 		\caption{Latency estimation of C synthesis for Gaussian Filter.}
 	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
+			min           & max           & min           & max           \\ \hline
+			1             & 1             & 2             & 2             \\ \hline
+		\end{tabular}
+		\caption{Latency estimation of C synthesis for Gaussian Filter with optimization.}
+	\end{table}
+	
 	\begin{table}[H]
 		\centering
 		\caption{}
 		\begin{tabular}{|c|c|c|c|}
 		\hline
 		BRAM\_18K & DSP48E & FF  & LUT \\ \hline
-		2         & 5      & 599 & 1770\\ \hline
+		2         & 10     & 3018 & 6319\\ \hline
 		\end{tabular}
 		\caption{Resource utilization for Gaussian Filter.}
 	\end{table}
-	\section{I/Q mismatch compensation}
+	
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		BRAM\_18K & DSP48E & FF  & LUT \\ \hline
+		2         & 5      & 3960 & 5214\\ \hline
+		\end{tabular}
+		\caption{Resource utilization for Gaussian Filter with optimization.}
+	\end{table}
+	\section{I/Q Mismatch Correction}
 	\begin{table}[H]
 		\centering
 		\caption{}
@@ -1006,10 +1066,34 @@ $USB$  & Upper Side Band \\
 		\hline
 		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
 			min           & max           & min           & max           \\ \hline
+			119           & 119           & 117           & 177             \\ \hline
+		\end{tabular}
+		\caption{Latency estimation of C synthesis for IQ mismatch compensation.}
+	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		\multicolumn{2}{|c|}{Latency} & \multicolumn{2}{c|}{Interval} \\ \hline
+			min           & max           & min           & max           \\ \hline
 			119           & 119           & 2             & 2             \\ \hline
 		\end{tabular}
 		\caption{Latency estimation of C synthesis for IQ mismatch compensation.}
 	\end{table}
+	
+	\begin{table}[H]
+		\centering
+		\caption{}
+		\begin{tabular}{|c|c|c|c|}
+		\hline
+		BRAM\_18K & DSP48E & FF   & LUT \\ \hline
+		6         & 8     & 4179 & 8608\\ \hline
+		\end{tabular}
+		\caption{Resource utilization for IQ mismatch compensation.}
+	\end{table}
+	
 	\begin{table}[H]
 		\centering
 		\caption{}
@@ -1021,9 +1105,17 @@ $USB$  & Upper Side Band \\
 		\caption{Resource utilization for IQ mismatch compensation.}
 	\end{table}
 	
-	DC offset removal algorithms are relatively cheap in terms of resource utilization.
-	Gaussian Filter takes additional DSP48E units. IQ mismatch cimpensation algorithm is
-	the most expensive due to its complexity.
+	Using pragma \textit{PIPELINE} resulted in significant improvement in terms of latency and
+	interval. For Moving Average filter latency was reduced 9 times and interval almost 4 times.
+	For Gaussian Filter minimal latency and interval were reduced 9 and maximal 549 times. Such
+	disproportion is caused by not optimized multiplication in loop.
+	For IQ compensation latency did not changed but interval was reduced 
+	did not changed but minimal interval was reduced 58.5 and maximal 88.5 times.
+	For 100Mhz clock used in PL section interval of 1 allows to generate new output value at 
+	each clock cycle. In terms of resources utilization for DC removal algorithms improvement is not that
+	significant. For Moving Average Filter there almost no change. For Gaussian Filter number of used
+	DSP48E units is reduced by half. Optimization of IQ imbalance is trade off between 2.5 higher DSP48E
+	utilization and lower latency, but for fast signal processing it is worth.
 	
 \chapter{Performance evaluation}
 	This chapter presents results of simulation, hardware implementation and built in
@@ -1058,9 +1150,8 @@ $USB$  & Upper Side Band \\
 			\item No noise introduced
 			\item Phase mismatch - 3$^\circ$.
 		\end{itemize}
-
-			\vspace{1cm}	
-			\begin{figure}[H]
+	
+			\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/dc_comp.png}
    		 		\caption{\textit{Comparison of DC offset algorithms outputs in time domain.}}
@@ -1147,7 +1238,7 @@ $USB$  & Upper Side Band \\
 				\begin{tabular}{|c|c|c|c|}
 				\hline
 																				   & Input signal & \begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular} & \begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular} \\ \hline
-				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -87          & -89.9437                                                        & -90.0583                                                  \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -87          & -89.94                                                        & -90.06                                                  \\ \hline
 				Image {[}dB{]}                                                     & -34.95       & Noise level                                                     & Noise level                                               \\ \hline
 				\end{tabular}
 				\end{table}
@@ -1179,7 +1270,7 @@ $USB$  & Upper Side Band \\
 				\begin{tabular}{|c|c|c|c|}
 				\hline
 																				   & Input signal & \begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular} & \begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular} \\ \hline
-				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -81          & -87.2434                                                        & -86.1984                                                  \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -81          & -87.24                                                        & -86.19                                                  \\ \hline
 				Image {[}dB{]}                                                     & -22.68       & -32.58                                                          & -36.81                                                    \\ \hline
 				\end{tabular}
 				\end{table}
@@ -1212,7 +1303,7 @@ $USB$  & Upper Side Band \\
 				\begin{tabular}{|c|c|c|c|}
 				\hline
 																				   & Input signal & \begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular} & \begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular} \\ \hline
-				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -72          & -79.8820                                                        & -80.2054                                                  \\ \hline
+				\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & -72          & -79.88                                                        & -80.21                                                  \\ \hline
 				Image {[}dB{]}                                                     & -16.06       & -24.39                                                          & -27.44                                                    \\ \hline
 				\end{tabular}
 				\end{table}
@@ -1476,6 +1567,13 @@ $USB$  & Upper Side Band \\
 	 \subsection*{DC offset removal}
 	 	In this case built in DC offset correction algorithm is tested for signle tone
 		signal of frequency $f=1kHz$.
+		
+		\begin{figure}[H]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/dc_input.png}
+   		 	\caption{\textit{Received signal with DC offset.}}
+   		\end{figure}
+   		
 	 	\begin{figure}[H]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_dc.png}
@@ -1490,9 +1588,30 @@ $USB$  & Upper Side Band \\
    		 	implemented in Zynq PL section.}}
    		\end{figure}
    		
+\begin{table}[H]
+\caption{Comparison of DC offset removal algorithms.}
+\centering
+\begin{tabular}{|c|c|c|c|}
+\hline
+                                                                 & Input Signal & Moving Average Filter & Gaussian Filter \\ \hline
+\begin{tabular}[c]{@{}c@{}}DC \\ component {[}dB{]}\end{tabular} & -32.77       & -75.56                & -114.23         \\ \hline
+\end{tabular}
+\end{table}
+
+		Moving Average Filter surpassed DC component almost 2.3 and Guassian Filter 
+		3.5 times. Same as in the simulation Gaussian Filter has better attenuation of DC component in the
+		signal but with visible spectral leakage around signal frequency.
+   		\newpage
 		\subsection*{Single Tone Signal}
 		In this case implemented mismatch compensation is tested for
 		single tone signal with frequency $f=1kHz$.
+		
+		\begin{figure}[H]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/single_input.png}
+   		 	\caption{\textit{Received single tone signal spectrum without IQ mismatch compensation.}}
+   		 \end{figure}
+   		 	
 		\begin{figure}[!htb]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_single_mav.png}
@@ -1507,44 +1626,110 @@ $USB$  & Upper Side Band \\
    		 	Gaussian Filter.}}
    		\end{figure}	
    		
+   		\begin{table}[H]
+\centering
+\caption{IQ mismatch correction algorithm results for single tone signal.}
+\begin{tabular}{|c|c|c|c|}
+\hline
+                                                                   & Input Signal & Moving Average Filter & Gaussian Filter \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & 86.31        & 89.21                 & 90.01           \\ \hline
+Image {[}dB{]}                                                     & -51.09       & -78.42                & -81.96          \\ \hline
+\begin{tabular}[c]{@{}c@{}}DC \\ component {[}dB{]}\end{tabular}   & -28.58       & -87.35                & -116.56         \\ \hline
+\end{tabular}
+\end{table}
+		
+		In case of single tone signal IQ mismatch correction worked very well. Suppression of DC component was
+		better for Gaussian Filter. Image was attenuated for Moving Average Filter almost 1.588 and for Gausian
+		Filter 1.604 times. Phase compensation efficiency was satisfactory and mismatch was 0.79 in case of
+		Moving Average and 0.01 in case of Gaussian Filter. 
+		
+		\newpage
    		\subsection*{Multiton Signal}
    		In this case implemented mismatch compensation is tested for
 		multi tone signal with frequencies $f1=1kHz$ and $f2=0.5kHz$.
-  		\begin{figure}[!htb]
+		
+		\begin{figure}[H]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/multi_input.png}
+   		 	\caption{\textit{Received multi tone signal spectrum with IQ mismatch compensation with
+   		 	Moving Average Filter.}}
+   		\end{figure}	
+   		
+  		\begin{figure}[H]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_multi_mav.png}
    		 	\caption{\textit{Received multi tone signal spectrum with IQ mismatch compensation with
    		 	Moving Average Filter.}}
    		\end{figure}	
    		
-   		\begin{figure}[!htb]
+   		\begin{figure}[H]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_multi_gauss.png}
    		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
    		 	Gaussian Filter.}}
-   		\end{figure}		
+   		\end{figure}	
+   		
+   		\begin{table}[H]
+\centering
+\caption{IQ mismatch correction algorithm results for multi tone signal.}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+                                                                   & \multicolumn{2}{c|}{Input Signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular}} \\ \hline
+Frequency {[}kHz{]}                                                & 0.5             & 1               & 0.5                                       & 1                                        & 0.5                                    & 1                                     \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & 86.01           & 85.98           & 91.22                                     & 89.11                                    & 90.08                                  & 89.99                                 \\ \hline
+Image {[}dB{]}                                                     & -45.86          & -47.88          & -68.89                                    & -67.82                                   & -54.89                                 & -55.71                                \\ \hline
+\begin{tabular}[c]{@{}c@{}}DC \\ component {[}dB{]}\end{tabular}   & \multicolumn{2}{c|}{-28.15}       & \multicolumn{2}{c|}{-79.88}                                                          & \multicolumn{2}{c|}{-74.12}                                                    \\ \hline
+\end{tabular}
+\end{table}
+
+		For multi tone results are worse than for single tone signal. Image was attenuated in case of Moving
+		Average Filter 1.506 for 0.5kHz and 1.416 for 1kHz times and in case of Gaussian Filter 
+		1.196 for 0.5kHz and  1.163. Phase mismatch is grater in case of Moving Average Filter.
+		
+   		\newpage	
 		\subsection*{Broadband Signal}
 		In this case implemented mismatch compensation is tested for
 		broadband signal in frequency range from $f_s=0.5kHz$ to $f_e=1kHz$.
-		\begin{figure}[!htb]
+		
+		\begin{figure}[H]
+    		\centering
+   			\includegraphics[width=\textwidth]{plots/band_input.png}
+   		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
+   		 	Moving Average Filter.}}
+   		\end{figure}
+		\begin{figure}[H]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_band_mav.png}
    		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
    		 	Moving Average Filter.}}
    		\end{figure}
    		
-   		\begin{figure}[!htb]
+   		\begin{figure}[H]
     		\centering
    			\includegraphics[width=\textwidth]{plots/my_band_gauss.png}
    		 	\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation with
    		 	Gaussian Filter.}}
    		\end{figure}
    		
-   		\newpage
-		In all cases DC offset was successfully removed. Gaussian filter introduce additional spectral
-		leakage close to the tone frequencies. Algorithms perform the worst in multi tone signal case.
-		For single tone and broad band images are successfully reduced to almost level of the noise.	
-   		
+\begin{table}[H]
+\centering
+\caption{IQ mismatch correction algorithm results for broadband signal.}
+\begin{tabular}{|c|c|c|c|c|c|c|}
+\hline
+                                                                   & \multicolumn{2}{c|}{Input Signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Gaussian\\ Filter\end{tabular}} \\ \hline
+Frequency {[}kHz{]}                                                & 0.5             & 1               & 0.5                                       & 1                                        & 0.5                                    & 1                                     \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & 87.11           & 86.45           & 91.16                                     & 90.56                                    & 91.08                                  & 91.06                                 \\ \hline
+Image {[}dB{]}                                                     & -51.34          & -50.98          & -61.89                                    & -61.03                                   & -65.12                                 & -68.87                                \\ \hline
+\begin{tabular}[c]{@{}c@{}}DC \\ component {[}dB{]}\end{tabular}   & \multicolumn{2}{c|}{-29.01}       & \multicolumn{2}{c|}{-71.57}                                                          & \multicolumn{2}{c|}{-70.05}                                                    \\ \hline
+\end{tabular}
+\end{table}	
+   			In case of broadband signal compensation works better than in multi tone case scenario.
+		For Moving Average Filter image was attenuated about 1.205 times an phase mismatch was varying form
+		1.16$^{\circ}$ for 0.5Hz to 0.56$^{\circ}$ for 1kHz. In case of Gaussian Filter image was
+		attenuated about 1.268 times. Phase mismatch was varying form
+		1.08$^{\circ}$ for 0.5Hz to 1.06$^{\circ}$ for 1kHz.
+		
+   	\newpage
 	\section{On Chip Algorithm}
 		This section contains performance evaluation of compensation algorithms built in AD9363.
 	
@@ -1570,51 +1755,82 @@ $USB$  & Upper Side Band \\
 		signal of frequency $f=1kHz$.				
    		 	\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/real_dcoff.png}
+   				\includegraphics[width=0.9\textwidth]{plots/real_dcoff.png}
    		 		\caption{\textit{Received signal spectrum without DC offset removal.}}
    		 	\end{figure}
-   		 	\vspace{0.5cm}
    		 	\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/real_dcon.png}
+   				\includegraphics[width=0.9\textwidth]{plots/real_dcon.png}
    		 		\caption{\textit{Received signal spectrum with AD9363 built in DC offset removal.}}
    		 	\end{figure}
-   		\newpage
+   		 	
+   		 	\begin{table}[H]
+\centering
+\caption{AD9363 built in DC offset correction.}
+\begin{tabular}{|c|c|c|}
+\hline
+                     & Input signal & Corrected signal \\ \hline
+DC component{[}dB{]} & -38.68       & --84.78          \\ \hline
+\end{tabular}
+\end{table}
 		\subsection*{Single Tone Signal}
 		In this case built in IQ mismatch compensation and DC offset removal algorithms are
 	 	tested for
 		single tone signal with frequency $f=1kHz$.
 		\begin{figure}[H]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/real_single_off.png}
+   				\includegraphics[width=0.9\textwidth]{plots/real_single_off.png}
    		 		\caption{\textit{Received single tone signal spectrum without IQ mismatch compensation.}}
    		 	\end{figure}
-			\vspace{0.5cm}
    		 	\begin{figure}[H]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/real_single_on.png}
+   				\includegraphics[width=0.9\textwidth]{plots/real_single_on.png}
    		 		\caption{\textit{Received single tone signal spectrum with IQ mismatch compensation.}}
    		 	\end{figure}
-   		\newpage
+   		 	
+   		 	   		\begin{table}[H]
+\centering
+\caption{AD9363 built in IQ mismatch correction algorithm results for single tone signal.}
+\begin{tabular}{|c|c|c|}
+\hline
+                                                                   & Input Signal & Corrected signal  \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & 86.87        & 90.05 \\ \hline
+Image {[}dB{]}                                                     & -43.56       & -91.63                        \\ \hline
+\begin{tabular}[c]{@{}c@{}}DC \\ component {[}dB{]}\end{tabular}   & -41.23       & -74.21                  \\ \hline
+\end{tabular}
+\end{table}
    	\subsection*{Multiton Signal}
    		In this case built in IQ mismatch compensation and DC offset removal algorithms are
 	 	tested for multi signal with frequencies $f1=1kHz$ and $f2=0.5kHz$.
-   		 	\begin{figure}[H]
+	 	
+   		 	\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/real_multi_off.png}
+   				\includegraphics[width=0.9\textwidth]{plots/real_multi_off.png}
    		 		\caption{\textit{Received multi tone signal spectrum without IQ mismatch compensation.}}
    		 	\end{figure}
-   		 	\vspace{0.5cm}
-   		 	\begin{figure}[H]
+   		 	\begin{figure}[!htb]
     			\centering
-   				\includegraphics[width=\textwidth]{plots/real_multi_on.png}
+   				\includegraphics[width=0.9\textwidth]{plots/real_multi_on.png}
    		 		\caption{\textit{Received multi tone signal spectrum with IQ mismatch compensation.}}
    		 	\end{figure}
-   	 \newpage	
+   		 	
+\begin{table}[!htb]
+\centering
+\caption{AD9363 built in IQ mismatch correction algorithm results for multi tone tone signal.}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+                                                                   & \multicolumn{2}{c|}{Input Signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}}  \\ \hline
+Frequency {[}kHz{]}                                                & 0.5             & 1               & 0.5                                       & 1                                                                             \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & 85.91           & 86.02           & 92.05                                     & 89.07                                                                 \\ \hline
+Image {[}dB{]}                                                     & -40.87          & -41.01          & -55.69 & -55.41                                    \\ \hline
+\begin{tabular}[c]{@{}c@{}}DC \\ component {[}dB{]}\end{tabular}   & \multicolumn{2}{c|}{30.05}       & \multicolumn{2}{c|}{-87.12}                                                         \\ \hline
+\end{tabular}
+\end{table}
+
 	 \subsection*{Broadband Signal}
 	 	In this case built in IQ mismatch compensation and DC offset removal algorithms are
 	 	tested for broadband signal in frequency range from $f_s=0.5kHz$ to $f_e=1kHz$.
-   		 	\begin{figure}[H]
+   		 	\begin{figure}[!htb]
     			\centering
    				\includegraphics[width=\textwidth]{plots/real_band_off.png}
    		 		\caption{\textit{Received broadband signal spectrum without IQ mismatch compensation.}}
@@ -1625,33 +1841,112 @@ $USB$  & Upper Side Band \\
    				\includegraphics[width=\textwidth]{plots/real_band_on.png}
    		 		\caption{\textit{Received broadband signal spectrum with IQ mismatch compensation.}}
    		 	\end{figure}
-   		 	\newpage
-   		 	In all cases DC offset component was successfully removed.  		 	
-			For multi tone singal test case markers P0 and P1 represents $1kHz$ and $0.5kHz$ 
-			tons in the signal. P3 and P4 are images
-   		 	of P0 and P1. P2 marker is DC component in the signal. In this case built in algorithms
-   		    performance was the worst. Image fringes were reduced by only 10dB. For broadband signal
-   		    image was reduced to the level of noise.
+   		 	
+   		 	\begin{table}[H]
+\centering
+\caption{IQ mismatch correction algorithm results for broadband signal.}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+                                                                   & \multicolumn{2}{c|}{Input Signal} & \multicolumn{2}{c|}{\begin{tabular}[c]{@{}c@{}}Moving Average\\ Filter\end{tabular}}  \\ \hline
+Frequency {[}kHz{]}                                                & 0.5             & 1               & 0.5                                       & 1                                                                             \\ \hline
+\begin{tabular}[c]{@{}c@{}}IQ phase\\ shift {[}deg{]}\end{tabular} & 87.01           & 87.21           & 90.05                                     & 89.98                                                                  \\ \hline
+Image {[}dB{]}                                                     & -62.02          & -62.74          & -72.12                                    & -72.05                                                            \\ \hline
+\begin{tabular}[c]{@{}c@{}}DC \\ component {[}dB{]}\end{tabular}   & \multicolumn{2}{c|}{-31.05}       & \multicolumn{2}{c|}{-85.31}                                                         \\ \hline
+\end{tabular}
+\end{table}
+
    		    
 \chapter{ Conclusions}
-	Performance of presented algorithms was very satisfying. In all cases test cases DC component was
-	successfully removed form the signal. Gaussian filter takes more resources than Moving Average
-	Filter, but requires almost 9 times lower number of samples to operate (256 samples in case of 
-	Moving Average Filter and 30 for Gaussian Filter). Gaussian filter introduced additional spectral
-	leakage close to signal tone frequency. Gaussian Filter worked better for multi tone signal
-	than Moving Average but was worse in case of broadband signal.
-	In all cases unwanted images were significantly reduced.
-	Constellation diagram shapes are closer to circle which means orthogonality of the I and Q component.
-	In case of single tone signal constellation diagram changes it shape form ellipse to circle. For
-	multi tone two circles are present. One for lower and one for higher frequency tone. Broadband signal
-	constellation diagram is a ring with lower bound at lowest frequency in the band ad upper bound in
-	the highest. Introduction of the noise confirmed that algorithms are able to work in real case. 
-	However performance of both implemented and built in algorithm for multi tone
-	signal case was the worst. Performance of algorithms implemented in Zynq PL section was better than
-	built in AD9363 transceiver for single and multi tone, but worse for broadband signal.	
+
+	The main goal of this thesis was to research RF signal quality improvement algorithms and their
+	hardware implementation performance. Used Zynq 7010 SoC was capable of real time IQ mismatch compensation
+	on the same level of quality like built in AD9363 RF agile transceiver correction algorithms.
+	This proved that SoC can be effectively used in SDR application.
 	\\
 	
+	After research of available solution following algorithms were chosen to create RF signal quality improvement system:
+	\begin{itemize}
+		\item Moving Average Filter \cite{mav},
+		\item Gaussian Filter \cite{filter_design},
+		\item IQ imbalance compensation \cite{iqcorr}
+	\end{itemize}.
+	Presented algorithms were first simulated in Matlab to test their capability in
+	three different levels of noise and phase mismatches.
+	After that, algorithms were synthesized in Vivado HLS and uploaded to real hardware.
+	Next, the performance of algorithms in real condition was evaluated.
+	\\
+		
+	Simulation were performed for three types of signal in 4 scenarios each:
+	\\
 	
+	Single tone - 1kHz:
+	\begin{itemize}
+		\item Scenario 1: noiseless signal, $\phi=3^\circ$, DC offset in I branch 0.1,
+		\item Scenario 2: noise at the -50 dB level, $\phi=3^\circ$, DC offset in I branch 0.1,
+		\item Scenario 3: noise at the -40 dB level, $\phi=9^\circ$, DC offset in I branch 0.1,
+		\item Scenario 4: noise at the -30 dB level, $\phi=18^\circ$, DC offset in I branch 0.1,
+	\end{itemize}
+	\newpage
+	
+	Multi tone - 0.5kHz and 1kHz:
+	\begin{itemize}
+		\item Scenario 1: noiseless signal, $\phi=3^\circ$, DC offset in I branch 0.1,
+		\item Scenario 2: noise at the -70 dB level, $\phi=3^\circ$, DC offset in I branch 0.1,
+		\item Scenario 3: noise at the -40 dB level, $\phi=9^\circ$, DC offset in I branch 0.1,
+		\item Scenario 4: noise at the -30 dB level, $\phi=18^\circ$, DC offset in I branch 0.1,
+	\end{itemize}
+	\vspace{0.5cm}
+	Broadband - from 0.5kHz to 1kHz:
+	\begin{itemize}
+		\item Scenario 1: noiseless signal, $\phi=3^\circ$, DC offset in I branch 0.1,
+		\item Scenario 2: noise at the -70 dB level, $\phi=3^\circ$, DC offset in I branch 0.1,
+		\item Scenario 3: noise at the -40 dB level, $\phi=9^\circ$, DC offset in I branch 0.1,
+		\item Scenario 4: noise at the -30 dB level, $\phi=18^\circ$, DC offset in I branch 0.1,
+	\end{itemize}
+		
+	According to \cite{iqcorr} presented IQ mismatch compensation algorithm is able to work for
+	phase mismatch $\phi \le \frac{\pi}{2}$ rad. Simulations showed that this is true when no noise
+	is introduced to the signal.
+	With increasing noise and initial phase $\phi$ between I and Q branches was varying more form ideal
+	$90^\cdot$ quadrature. In all cases in scenario 4 compensation algorithms were not able to 
+	attenuate image to the level of noise and phase mismatch was grater that $10^{\circ}$. This proves
+	that in real condition maximal phase mismatch allowing correct operation is much smaller.
+	\\
+	
+	Gaussian filter introduced additional spectral
+	leakage close to signal tone frequency. Gaussian Filter worked better for single tone signal
+	than Moving Average but was worse in case of broadband signal.
+	Constellation diagram shapes are closer to circle which means orthogonality of the I and Q
+	 component.
+	In case of single tone signal constellation diagram changes it shape form ellipse to circle. For
+	multi tone two circles are present. One for lower and one for higher frequency tone. Broadband
+	signal.
+	constellation diagram is a ring with lower bound at lowest frequency in the band ad upper bound in
+	the highest. I
+	
+	Performance in hardware was satisfactory and obtained result were similar to simulations.
+	All algorithms were tested in following scenario:
+	\begin{itemize}
+		\item - noise at the -90 dB level,
+		\item - $\phi=18^\circ$,
+		\item - DC offset in I branch 0.1.
+	\end{itemize}	
+	In all cases phase mismatch was lower than $3^\circ$	
+	Both DC offset removal algorithms were able to successfully cut off DC component form the incoming
+	signal. IQ mismatch correction with Gaussian Filter DC offset removal had better phase correction
+	than with Moving Average filter.
+	
+	Algorithms optimization resulted in significant reduction of latency and interval which
+	allowed use in real time. Gaussian Filter takes more resources than Moving Average filter,
+	especially DSP48E units, however requires almost 9 times lower number of samples to operate (256 samples in case of 
+	Moving Average Filter and 30 for Gaussian Filter).Pipeline optimization of IQ correction algorithm resulted
+	in 2.5 times greater DSP48E usege and slightly increased utilization of other resource
+	Implementation in hardware had similar efficiency to AD9363 build in compensation algorithms.
+	This means that no sophisticated RF hardware is required to maintain high quality of the signal,
+	and Zynq SoC are well suited for such applications.
+	\\
+
+
 	Algorithms tested in this thesis shows that it is possible to significantly improve RF signal
 	quality using both implementation approaches: in software and in hardware. However hardware
 	approach allowed to perform effective IQ correction in real time. Devices such as SoC shows
@@ -1723,6 +2018,10 @@ Xilinx Inc.,
 \bibitem{hls2}
 Xilinx Inc.,
 \textit{Xilinx Vivado High Level Synthesis: Case studies, https://digital-library.theiet.org/content/conferences/10.1049/cp.2014.0713}
+
+\bibitem{hls_optimize}
+Xilinx Inc.,
+\textit{Xilinx Vivado HLS Optimization Methodology Guide, https://www.xilinx.com/support/documentation/sw_manuals/xilinx2017_4/ug1270-vivado-hls-opt-methodology-guide.pdf}
 
 \bibitem{zynq_ds}
 Xilinx Inc.,
